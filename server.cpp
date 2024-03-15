@@ -10,7 +10,12 @@ void * hconnect (void * fd)
 {
 	int f = *((int *)fd);// get socket number
 	// regsiter the new player in the communication instance
-	
+	// get the name of the player :
+		// read the name size
+		// read the name and store it in a char array, then in a string
+		
+	// create a Player instance, with name, socket, and state (0)
+		
 	//loop waiting for another player
 		// print the list of other player
 		// give the choice to invite another player, while waiting for an invitation

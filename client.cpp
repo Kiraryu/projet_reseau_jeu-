@@ -46,10 +46,18 @@ int main (int argc, char * argv[])
 
 	size_t len;
 	ssize_t size;
+	// ask the name of the player
+	std::cout << "connected to the server"<< std::endl <<"Please give your name : ";
+	std::string player_name;
+	std::cin >> player_name; // TODO : add a test if the player give a bad name
+	
+	// write the length of the name to server
+	// write the name to the server
+	
 	size = read(s, &len, sizeof(len));
 	if(size != sizeof(len));
 	
-	buf = new char [len + 1];
+	buf = new char [len + 1]; //why not sore it in a string directly ? 
 	size = read(s, buf, 1 + len);
 	if(size != sizeof(len));
 	
