@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include "base.h"
+#include "Communication.h"
 
 void * hconnect (void * fd)
 
@@ -72,7 +73,8 @@ int main (int argc, char ** argv)
 		fprintf(stderr, "listen() failed\n");
 		return 0;
 	}
-
+	// instanciate a gloabl class communication
+	
         while (1) {
         	//int accept(int socket, struct sockaddr *restrict address,socklen_t *restrict address_len);
         	// https://pubs.opengroup.org/onlinepubs/009696699/functions/accept.html
