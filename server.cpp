@@ -8,7 +8,17 @@
 void * hconnect (void * fd)
 
 {
-	int f = *((int *)fd);
+	int f = *((int *)fd);// get socket number
+	// regsiter the new player in the communication instance
+	
+	//loop waiting for another player
+		// print the list of other player
+		// give the choice to invite another player, while waiting for an invitation
+	
+	//when agreed with another player -start a game:
+	//create and register the new game
+	//enter the game loop	
+	
 	char tmp[100];
 	time_t t;
 	struct tm * T;
@@ -19,13 +29,13 @@ void * hconnect (void * fd)
 
 	size_t len = strlen(tmp);
 	ssize_t size;
-	size = write(f, &len, sizeof(len));
+	size = write(f, &len, sizeof(len));// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(len));
 	size = write(f, tmp, 1 + strlen(tmp));
 	if(size != sizeof(len));
-	close(f);
+	close(f); //close the socket
 
-	free(fd);
+	free(fd); //free the memory of socket pointer
 	pthread_detach(pthread_self());
 	return NULL;	
 }
