@@ -32,14 +32,14 @@ void * hconnect (void * fd)
 int main (int argc, char ** argv)
 
 {
-        const char * server = "0.0.0.0";
+        const char * server = "0.0.0.0"; // convention pour se mettre en écoute sur toutes les cartes réseaux.
         struct sockaddr_in sin;
         int s, f, ret;
 	pthread_t tid;
 	int optval = 1;
 
-        sin.sin_family = AF_INET;
-        sin.sin_port = htons(DEFAULT_PORT);
+        sin.sin_family = AF_INET; //permet de dire qu'on est en IPv4
+        sin.sin_port = htons(DEFAULT_PORT); // encodage du port, htons : host to network short
         ret = inet_aton(server, &sin.sin_addr);
         if (ret == 0) {
 		fprintf(stderr, "address %s invalid\n", server);
@@ -57,13 +57,16 @@ int main (int argc, char ** argv)
                 fprintf(stderr, "setsockopt() failed\n");
                 return 0;
         }
-
+        
+	//bind : fonction pour relier les cartes réseaux aux sockets
         ret = bind(s, (struct sockaddr *)&sin, sizeof(sin));
         if (ret != 0) {
 		fprintf(stderr, "bind() failed\n");
 		return 0;
 	}
-
+	
+	// listen : se mettre en attente des connexion entrantes
+	// listen(s, 10) : max 10 connnexions en même temps 
         ret = listen(s, 10);
         if (ret != 0) {
 		fprintf(stderr, "listen() failed\n");
@@ -71,6 +74,8 @@ int main (int argc, char ** argv)
 	}
 
         while (1) {
+        	//int accept(int socket, struct sockaddr *restrict address,socklen_t *restrict address_len);
+        	// https://pubs.opengroup.org/onlinepubs/009696699/functions/accept.html
                 f = accept(s, NULL, 0);
                 if (f == -1) {
 			fprintf(stderr, "accept() failed\n");
