@@ -64,10 +64,12 @@ void * hconnect (void * fd)
 	
 	
 	//enter big waiting loop :
-		// wiating while the player is alone on server
+		
 	
 	// if invited list of player is empty :
-		
+		//send player list names; 
+		// ask if it wants to invite or not
+		// which one it invites
 	// else : the player has been invited :
 		//give choice, join the game, or invite another player
 	
