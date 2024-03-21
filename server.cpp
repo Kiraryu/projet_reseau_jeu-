@@ -22,14 +22,23 @@ void * hconnect (void * fd)
 	std::string player_name(buffer);
 	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
 	
-	global_com.create_player(f, player_name);
+	global_com.create_player(f, player_name); //state of player == 0
+	while(1) {
+		player_list = global_com.get_player_list()
+		if(global_com.
 	
-	//size = read(s, &len_name, sizeof(len_name))
+	}
 	
 	
-		// read the name and store it in a char array, then in a string
+	
+	//enter big waiting loop :
+		// wiating while the player is alone on server
+	
+	// if invited list of player is empty :
 		
-	// create a Player instance, with name, socket, and state (0)
+	// else : the player has been invited :
+		//give choice, join the game, or invite another player
+	
 		
 	//loop waiting for another player
 		// print the list of other player
