@@ -6,6 +6,36 @@
 #include "Communication.h"
 #include <time.h>
 
+
+void check_player_state(player_ptr){
+	int player_state = player_ptr->get_state();
+	if(player_state==0){/* On ne fait rien*/}
+	else if(player_state==1){//you are invited to a game
+		socket = player_ptr->get_socket();
+		std::vector<Player*> inviting_list = player_ptr->get_inviting_players();
+		//send client names of players inviting it
+		//ask (wait for answer) client if accept or reject invitation
+		//if(accept)
+			//invalidate other sent invitations (by me)
+			//ask inviting to invalidate his other invitation
+			//check if invitation is still valid
+			//change the state of this and inviting to 2
+			
+		else{
+			player_ptr->change_state(0);
+			for(int i=0; i<inviting_list.size();i++){
+				inviting_list[i]->invitation_rejected(player_ptr);
+			}
+			}//rejection
+	}
+	// in the state was already 2, or just passed to 2
+	player_state = player_ptr->get_state();
+	if(player_state==2){
+		//enter the game
+	
+		}
+}
+
 void * hconnect (void * fd)
 
 {
@@ -32,19 +62,19 @@ void * hconnect (void * fd)
 	size = write(f, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(buffer));
 	
-	while(1) {
+	while(1) {//s'exécute tant que je suis le seul joueur dispo sur le serveur
 		int break_or_not = 0;
 		player_list = global_com.get_player_list()
 		if(player_list.size() <=1){/*just do nothing, wait*/}
 		else{
-			Player player;
+			Player* other_player_ptr;
 			// other player connected, check if some are available
 			for(int i = 0; i<player_list.size();i++){
 				//check if it is not us
-				player = player_list[i];
-				int player_socket = player.get_socket();
+				other_player_ptr = player_list[i];
+				int player_socket = other_player_ptr->get_socket();
 				if(player_socket == f){
-					break; //it is us
+					continue; //it is us
 					}
 				int player_state = player.get_state();
 				//get the state
@@ -70,15 +100,47 @@ void * hconnect (void * fd)
 	
 	//ici, il y a des joueurs connectés
 	//check si ce joueur est invité:
+	
+	//TODO call check_player_state(player_ptr)
+	while(1){//dans cette boucle tant que on n'est pas dans un jeu
+		// dire au client message d'autres joueurs connectés
+		//TODO call check_player_state(player_ptr)
+		// demander si envoyer invitation(voir liste joueur) ou juste attendre
+		//TODO call check_player_state(player_ptr)
+		//if attendre : sleep(5); continue; (on revient au début
+		//if envoyer invit:
+			//envoyer liste noms joueurs dispo au client et demander choix 
+			//TODO call check_player_state(player_ptr)
+			//envoyer l'invitation à autre joueur
+		//TODO call check_player_state(player_ptr) 
+	}		
+	
+	
+	
+	/* début du bazar inutile
 	std::vector<Player*> inviting_list = player_ptr->get_inviting_players();
 	if(inviting_list.size()==0){
+		//send to the client the list of connected players who are available
+			///send 0 to the client, then
+			///create and send a list of players names to client
+			
+			
+		// the client get the choice of the human
+		// 
+		
 		//has to wait and or invite other player
 	}
 	else if(inviting_list.size()>0){
 		//has to choose to accept a game, or to wait, or to invite someone else
+			///send 1 to the client, then
+			///create a list of 
 	}
-	
-	
+	else{
+		//there is a problem
+		//TODO manage the problem
+			///send -1 to the client
+	}
+	*/ //fin de bazar
 	
 	
 		//envoyer liste des invitations
