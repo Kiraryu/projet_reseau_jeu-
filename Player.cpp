@@ -16,6 +16,19 @@ Player::~Player()
 
 } 	
 
+int Player::get_socket(){
+	return m_socket;
+}
+int Player::get_state(){
+	return m_state;
+}
+std::string Player::get_string(){
+	return m_name;
+}
+int Player::get_turn_nb(){
+	return m_turn_number;
+}
+
 void Player::get_invited(Player* player_id){
 	/* TODO :
 	- if the state is 2 : refuse invitation and continue the game
@@ -29,7 +42,7 @@ void Player::get_invited(Player* player_id){
 
 void Player::change_player_turn_number(int new_turn_nb)
 {
-	player_turn_number = new_turn_nb;
+	m_turn_number = new_turn_nb;
 }
 
 
