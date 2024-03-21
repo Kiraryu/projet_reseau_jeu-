@@ -3,7 +3,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include "base.h"
-//#include "Communication.h"
+#include "Communication.h"
 
 void * hconnect (void * fd)
 
@@ -20,7 +20,10 @@ void * hconnect (void * fd)
 	size = read(f, buffer, sizeof(buffer));
 	if(size != sizeof(buffer));
 	std::string player_name(buffer);
-	std::cout << "player_name : " << player_name << std::endl;
+	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
+	
+	global_com.create_player(f, player_name);
+	
 	//size = read(s, &len_name, sizeof(len_name))
 	
 	
@@ -106,6 +109,8 @@ int main (int argc, char ** argv)
 		return 0;
 	}
 	// instanciate a gloabl class communication
+	Communication global_com;
+	
 	
         while (1) {
         	//int accept(int socket, struct sockaddr *restrict address,socklen_t *restrict address_len);
