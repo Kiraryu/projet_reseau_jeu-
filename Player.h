@@ -28,4 +28,6 @@ public:
 	std::string get_string();
 	int get_turn_nb();
 	
+	std::vector<Player*> get_inviting_players(); //get m_inviting_players attribute TODO
+	
 }
