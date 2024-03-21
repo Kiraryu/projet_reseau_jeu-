@@ -9,8 +9,8 @@ private :
 public :
 	Communication();
 	
-	ask_player_name();
-	create_player();
+	//ask_player_name(); --> voir client
+	void create_player(int socket, std::string player_name);
 	send_invite(Player1, Player2);
 	start_game(Player player1, Player player2); // changer état des jouers
 
