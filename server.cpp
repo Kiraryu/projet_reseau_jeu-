@@ -4,6 +4,7 @@
 #include <iostream>
 #include "base.h"
 #include "Communication.h"
+#include <time.h>
 
 void * hconnect (void * fd)
 
@@ -23,19 +24,52 @@ void * hconnect (void * fd)
 	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
 	
 	global_com.create_player(f, player_name); //state of player == 0
+	// TODO : send to client waiting for another player
 	while(1) {
+		int break_or_not = 0;
 		player_list = global_com.get_player_list()
-		if(global_com.
+		if(player_list.size() <=1){/*just do nothing, wait*/}
+		else{
+			Player player;
+			// other player connected, check if some are available
+			for(int i = 0; i<player_list.size();i++){
+				//check if it is not us
+				player = player_list[i];
+				int player_socket = player.get_socket();
+				if(player_socket == f){
+					break; //it is us
+					}
+				int player_state = player.get_state();
+				//get the state
+				//if available break the for and while loop
+				if(player_state == 0 || player_state == 1){
+					break_or_not = 1;
+					}
+							
+			} 
+			
+		}
+		if(break_or_not){break;}
+		//wait some time
+		
+		struct timespec sleeping_time;
+		sleeping_time.tv_sec = 0;
+		sleeping_time.tv_nsec = 100000;
+		nanosleep(&ts, nullptr);
+		/*std::chrono::milliseconds timespan(100);
+		std::this_thread::sleep_for(timespan);//TODO :voir avec le prof si on peut bien utiliser ça. */
 	
-	}
+	}//TODO : gérer le cas d'abandon d'un joueur
 	
 	
 	
 	//enter big waiting loop :
-		// wiating while the player is alone on server
+		
 	
 	// if invited list of player is empty :
-		
+		//send player list names; 
+		// ask if it wants to invite or not
+		// which one it invites
 	// else : the player has been invited :
 		//give choice, join the game, or invite another player
 	
