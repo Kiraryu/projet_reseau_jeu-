@@ -23,7 +23,7 @@ void * hconnect (void * fd)
 	std::string player_name(buffer);
 	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
 	
-	Player* player_pointer = global_com.create_player(f, player_name); //state of player == 0
+	Player* player_ptr = global_com.create_player(f, player_name); //state of player == 0
 	// TO CHECK TODO : send to client waiting for another player
 	std::string message = "Waiting for another player to connect to the server";
 	const char* buffer = message.c_str();
@@ -70,8 +70,15 @@ void * hconnect (void * fd)
 	
 	//ici, il y a des joueurs connectés
 	//check si ce joueur est invité:
-	std::vector<Player*> inviting_list = 
-	if()
+	std::vector<Player*> inviting_list = player_ptr->get_inviting_players();
+	if(inviting_list.size()==0){
+		//has to wait and or invite other player
+	}
+	else if(inviting_list.size()>0){
+		//has to choose to accept a game, or to wait, or to invite someone else
+	}
+	
+	
 	
 	
 		//envoyer liste des invitations
