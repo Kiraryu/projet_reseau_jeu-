@@ -69,6 +69,17 @@ int main (int argc, char * argv[])
 	
 	if(size != sizeof(buffer));
 	std::cout << "your name has been sent to the server" << std::endl;
+	buffer.clear();
+	
+	//receive the waiting message from server
+	char buffer_message[100] = {0};
+	size = read(f, buffer_message, sizeof(buffer_message));
+	if(size != sizeof(buffer_message));
+	std::string message(buffer_message);
+	std::cout << message << std::endl;
+	buffer_message.clear()
+	
+	
 	//size = write(f, player_name, 1 + strlen(player_name));
 	
 	//if(size != sizeof(len_name));

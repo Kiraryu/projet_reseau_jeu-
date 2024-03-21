@@ -19,4 +19,5 @@ public:
 	
 	void get_invited(Player* player_id); // to be invited by another player
 	void change_state(int new_state);
-}
+	
+	std::vector<Player*> get_inviting_players(); //get m_inviting_players attribute
