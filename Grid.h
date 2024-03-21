@@ -14,5 +14,4 @@ public:
 	Grid();
 	change_prefix(int pos, int value);
 	~Grid();
-
 }
