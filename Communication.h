@@ -3,12 +3,15 @@
 class Communication {
 
 private :
-	Player** players_list;
-	Game** games_list; 
+	std::vector<Player*> players_list;
+	std::vector<Game*> games_list; 
 
 public :
 	Communication();
-	start_game();
 	
+	ask_player_name();
+	create_player();
+	send_invite(Player1, Player2);
+	start_game(Player player1, Player player2); // changer état des jouers
 
 };

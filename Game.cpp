@@ -13,6 +13,11 @@ Game::Game()
     	Grid m_grid()
 }
 
+Game::assign_turn(Player player)
+{
+	
+}
+
 Game::~Game()
 {
 
