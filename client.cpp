@@ -79,6 +79,31 @@ int main (int argc, char * argv[])
 	std::cout << message << std::endl;
 	buffer_message.clear()
 	
+	int int_buff;
+	size = read(f, int_buff, sizeof(int_buff));
+	if(size != sizeof(int_buff));
+	if(int_buff==0)//no one has invited this player
+		{
+		//need to receive the list of available player's names
+		///print the name of available players with number
+		/// ask if human want to invite another player
+		/// ask the number of the player it want to invite
+		///send to server the 
+		}
+	else if(int_buff==1)//this player has been invited by others
+		{
+		//need to receive the list of available player's names
+		//and the list of inviting player names
+		}
+	else if(int_buff==-1)//there is a problem on the server : inviting_list.size()
+		{
+		std::cout <<"there is a problem on the server with the value of inviting_list.size()" << tsd::endl;
+		//TODO : decide what to do
+		}
+	else{} //there is a problem in the communication
+	
+	int_buff.clear()
+	
 	
 	//size = write(f, player_name, 1 + strlen(player_name));
 	

@@ -1,0 +1,62 @@
+classe communication :
+
+liste dynamique pointeurs joueurs
+	//noms des joueurs
+	//sockets des joueurs
+	//état des joueurs
+
+
+index des parties en cours avec joueurs associés :liste de pointeur vers des parties
+
+
+
+classe partie
+
+	joueur 1
+	joueur 2
+	grid
+	
+classe joueur :
+	socket
+	name
+	état
+
+
+classe grid :
+
+
+
+https://stackoverflow.com/questions/1508490/erase-the-current-printed-console-line
+
+
+
+mécanisme d'initialisation :
+
+à chaque étape dans le thread client :
+vérifier l'état :
+Si 0 : on continue tout va bien
+Si 1 : j'affiche les invitations, je peux les accepter, où les refuser, 
+	si j'accepte (et que l'invitation est toujours valide) je passe en état 2 (et je fais passer l'autre joueur en état 2) et je rentre dans la boucle de jeu (et j'invalide toutes mes autres invitations)
+	si je refuse je repasse en état 0
+Si 2 : j'arrête tout ce que je fais et je rentre dans la boucle de jeu. 
+
+
+La boucle de ce que fais le joueur en attendant qu'il se passe les événements d'au dessus:
+- regarder les joueurs connectés et disponibles sur le serveur ou attendre (et revenir au début)
+- si on a regardé les joueurs choisir d'inviter ou non un joueur
+- revenir au début
+
+à développer côté serveur :
+- la fonction de vérification de l'état de player (check_player_state)
+- la boucle 
+
+
+
+
+
+
+
+
+
+
+
