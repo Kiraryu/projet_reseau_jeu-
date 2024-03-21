@@ -11,7 +11,7 @@ int main (int argc, char * argv[])
         struct sockaddr_in saddr;
         struct hostent * server;
         int s, ret;
-	char * buf;
+	//char * buf;
 
 	if (argc == 1) {
 		std::cerr << "usage: " << argv[0] 
@@ -44,16 +44,37 @@ int main (int argc, char * argv[])
                 return 0;
         }
 
-	size_t len;
-	ssize_t size;
+	//size_t len;
+	//ssize_t size;
 	// ask the name of the player
-	std::cout << "connected to the server"<< std::endl <<"Please give your name : ";
-	std::string player_name;
-	std::cin >> player_name; // TODO : add a test if the player give a bad name
+	std::cout << "connected to the server"<< std::endl <<"Please enter your name : ";
+	std::string player_name = " ";
+	
+	while (!(std::cin >> player_name) || player_name == " " || player_name.size() >50 )
+	{
+		std::cout << "Invalid name, Please enter your name : " << std::endl;
+        	std::cin.clear();
+        	std::cin.ignore(1000, '\n');// TODO : gérer si la personne met plus de 1000 char dans la console
+        }
 	
 	// write the length of the name to server
 	// write the name to the server
 	
+	
+	const char* buffer = player_name.c_str();
+	size_t buffer_size = player_name.size(); // should be max 50
+	ssize_t size;
+	
+	size = write(s, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
+	
+	if(size != sizeof(buffer));
+	std::cout << "your name has been sent to the server" << std::endl;
+	//size = write(f, player_name, 1 + strlen(player_name));
+	
+	//if(size != sizeof(len_name));
+	
+	
+	/*
 	size = read(s, &len, sizeof(len));
 	if(size != sizeof(len));
 	
@@ -62,8 +83,8 @@ int main (int argc, char * argv[])
 	if(size != sizeof(len));
 	
 	std::cout << buf << std::endl;
-
+	*/
 	close(s);
-	delete [] buf;
+	//delete [] buf;
 	return 0;
 }

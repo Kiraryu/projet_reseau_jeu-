@@ -3,15 +3,27 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include "base.h"
-#include "Communication.h"
+//#include "Communication.h"
 
 void * hconnect (void * fd)
 
 {
 	int f = *((int *)fd);// get socket number
+
 	// regsiter the new player in the communication instance
 	// get the name of the player :
 		// read the name size
+	//size_t len_name;
+	ssize_t size;
+	//size = read(s, &len_name, sizeof(len_name));// get the name len to define size of buffer
+	char buffer[50] = {0};
+	size = read(f, buffer, sizeof(buffer));
+	if(size != sizeof(buffer));
+	std::string player_name(buffer);
+	std::cout << "player_name : " << player_name << std::endl;
+	//size = read(s, &len_name, sizeof(len_name))
+	
+	
 		// read the name and store it in a char array, then in a string
 		
 	// create a Player instance, with name, socket, and state (0)
@@ -23,7 +35,9 @@ void * hconnect (void * fd)
 	//when agreed with another player -start a game:
 	//create and register the new game
 	//enter the game loop	
-	
+
+
+	/*
 	char tmp[100];
 	time_t t;
 	struct tm * T;
@@ -32,12 +46,15 @@ void * hconnect (void * fd)
 	T = localtime(&t);
 	snprintf(tmp, sizeof(tmp), "%s", asctime(T));
 
+
+
 	size_t len = strlen(tmp);
 	ssize_t size;
 	size = write(f, &len, sizeof(len));// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(len));
 	size = write(f, tmp, 1 + strlen(tmp));
 	if(size != sizeof(len));
+	*/
 	close(f); //close the socket
 
 	free(fd); //free the memory of socket pointer
