@@ -27,6 +27,12 @@ void Player::get_invited(Player* player_id){
 	*/
 }
 
+void Player::change_player_turn_number(int new_turn_nb)
+{
+	player_turn_number = new_turn_nb;
+}
+
+
 	 
 /*
 states of a player :

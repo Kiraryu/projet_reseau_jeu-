@@ -21,4 +21,7 @@ public:
 	void get_invited(Player* player_id); // to be invited by another player
 	void change_state(int new_state);
 	void change_player_turn_number(int new_turn_nb);
+	int get_socket();
+	int get_state();
+	std::string get_string();
 }
