@@ -23,8 +23,15 @@ void * hconnect (void * fd)
 	std::string player_name(buffer);
 	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
 	
-	global_com.create_player(f, player_name); //state of player == 0
-	// TODO : send to client waiting for another player
+	Player* player_pointer = global_com.create_player(f, player_name); //state of player == 0
+	// TO CHECK TODO : send to client waiting for another player
+	std::string message = "Waiting for another player to connect to the server";
+	const char* buffer = message.c_str();
+	size_t buffer_size = message.size(); // should be max 50
+	//ssize_t size;
+	size = write(f, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(buffer));
+	
 	while(1) {
 		int break_or_not = 0;
 		player_list = global_com.get_player_list()
@@ -57,11 +64,17 @@ void * hconnect (void * fd)
 		sleeping_time.tv_nsec = 100000;
 		nanosleep(&ts, nullptr);
 		/*std::chrono::milliseconds timespan(100);
-		std::this_thread::sleep_for(timespan);//TODO :voir avec le prof si on peut bien utiliser ça. */
+		std::this_thread::sleep_for(timespan);//TO CHECK TODO :voir avec le prof si on peut bien utiliser ça. */
 	
 	}//TODO : gérer le cas d'abandon d'un joueur
 	
+	//ici, il y a des joueurs connectés
+	//check si ce joueur est invité:
+	std::vector<Player*> inviting_list = 
+	if()
 	
+	
+		//envoyer liste des invitations
 	
 	//enter big waiting loop :
 		
