@@ -4,8 +4,7 @@
 #include <iostream>
 #include "base.h"
 #include "Communication.h"
-#include <chrono>
-#include <thread>
+#include <time.h>
 
 void * hconnect (void * fd)
 
@@ -52,8 +51,13 @@ void * hconnect (void * fd)
 		}
 		if(break_or_not){break;}
 		//wait some time
-		std::chrono::milliseconds timespan(100);
-		std::this_thread::sleep_for(timespan);//TODO :voir avec le prof si on peut bien utiliser ça. 
+		
+		struct timespec sleeping_time;
+		sleeping_time.tv_sec = 0;
+		sleeping_time.tv_nsec = 100000;
+		nanosleep(&ts, nullptr);
+		/*std::chrono::milliseconds timespan(100);
+		std::this_thread::sleep_for(timespan);//TODO :voir avec le prof si on peut bien utiliser ça. */
 	
 	}//TODO : gérer le cas d'abandon d'un joueur
 	
