@@ -76,7 +76,7 @@ void check_player_state(player_ptr){
 			}
 			player_state = player_ptr->get_state();
 		}
-		else if(players_choice>=0 || players_choice<player_number){
+		else if(players_choice>=0 || players_choice<player_number){//TODO : je m'étais arrêté là
 			//invalidate other sent invitations (by me)
 			//ask inviting to invalidate his other invitation
 			//check if invitation is still valid

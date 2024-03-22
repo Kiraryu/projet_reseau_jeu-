@@ -86,7 +86,7 @@ void communicate_check_player_state(int socket){
 		//send answer to server
 		size = write(socket, int_player_choice, sizeof(int_player_choice));
 		if(size != sizeof(int_player_choice));
-		
+		//TODO : je m'étais arrêté là
 		
 		
 		//if accepted :
