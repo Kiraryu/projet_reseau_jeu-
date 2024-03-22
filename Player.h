@@ -19,15 +19,15 @@ public:
 	~Player();
 	
 
-	void invitation_rejected(Player* rejected_player_id); // reject the invitation you have recieved. Delete rejected_player_id of m_inviting_players de this and call delete_invitation de rejected_player_id (lorsque le client à lu les invitations, s'il en refuse il faut les retirer de notre liste des joueurs invitant, et informer ces joueurs qu'on les a retirer de notre liste pour qu'ils nous retire de leur liste des joueurs invités.)
+	void reject_invitation(Player* rejected_player_id); // reject the invitation you have recieved. Delete rejected_player_id of m_inviting_players de this and call delete_invitation de rejected_player_id (lorsque le client à lu les invitations, s'il en refuse il faut les retirer de notre liste des joueurs invitant, et informer ces joueurs qu'on les a retirer de notre liste pour qu'ils nous retire de leur liste des joueurs invités.)
 	
 	void delete_invitation(Player* refusing_player_id); // delete the refusing_player_id from m_invited_players of this (lorsqu'on refuse notre invitation, nous fait retirer l'id du joueur de la liste des joueurs qu'on avait invités)
 	
-	void invitation_invalidated(Player* rejected_player_id); // TODO invalidate the invitations you have SENT to other players // call invitation_rejected of rejected_player_id with this as argument (demande à un joueur à qui on avait envoyé une invitation de l'invalider en nous la refusant)
+	void invalidate_invitation(Player* rejected_player_id); // invalidate the invitations you have SENT to other players // call invitation_rejected of rejected_player_id with this as argument (demande à un joueur à qui on avait envoyé une invitation de l'invalider en nous la refusant)
 	
 	void send_invitation(Player* target_player_id);//call target_player_id->receive_invitation(this) if player available, add target_player_id to m_invited_players of this, else do not add the player  (lorsqu'on envoie une invitation, on ajoute le joueur qu'on a invité à la liste des joueurs qu'on a invité, et on demande au joueur de nous ajouter à la liste des gens qui l'ont invités. S'il n'est pas dispo, il refuse directement et on ne l'ajoute pas à la liste)
 	
-	void receive_invitation(Player* inviting_player_id);// check the state of this. If 2 return that this is not available. Else, add inviting_player_id to m_inviting_players of this (Lorsqu'on reçoit une invitation, si on est en jeu, on dit qu'on est pas dispo, c'est tout. Si on est dispo, on ajoute la joueur invitant dans la liste des joueurs qui nous invitent)
+	int receive_invitation(Player* inviting_player_id);// check the state of this. If 2 return that this is not available. Else, add inviting_player_id to m_inviting_players of this (Lorsqu'on reçoit une invitation, si on est en jeu, on dit qu'on est pas dispo, c'est tout. Si on est dispo, on ajoute la joueur invitant dans la liste des joueurs qui nous invitent)
 	
 	
 	void change_state(int new_state);
