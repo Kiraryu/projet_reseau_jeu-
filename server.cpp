@@ -9,12 +9,18 @@
 
 void check_player_state(player_ptr){
 	int player_state = player_ptr->get_state();
+	//sent client the state to tell it what to do next
+	size = write(f, player_state, sizeof(player_state));// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(player_state));
+	
+	
 	if(player_state==0){/* On ne fait rien*/}
 	else if(player_state==1){//you are invited to a game
 		socket = player_ptr->get_socket();
 		std::vector<Player*> inviting_list = player_ptr->get_inviting_players();
 		//send client names of players inviting it
 		//ask (wait for answer) client if accept or reject invitation
+		//receive answer from client
 		//if(accept)
 			//invalidate other sent invitations (by me)
 			//ask inviting to invalidate his other invitation
@@ -26,7 +32,7 @@ void check_player_state(player_ptr){
 			for(int i=0; i<inviting_list.size();i++){
 				inviting_list[i]->invitation_rejected(player_ptr);
 			}
-			}//rejection
+		}//rejection
 	}
 	// in the state was already 2, or just passed to 2
 	player_state = player_ptr->get_state();
@@ -100,19 +106,29 @@ void * hconnect (void * fd)
 	
 	//ici, il y a des joueurs connectés
 	//check si ce joueur est invité:
+	// dire au client message d'autres joueurs connectés (on entre dans les boucles de connexions)
+	message.clear();
+	buffer.clear();
+	buffer_size.clear();
+	message = "Other players have joined or are available again !";
+	buffer = message.c_str();
+	buffer_size = message.size(); // should be max 100
+	//ssize_t size;
+	size = write(f, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(buffer));
 	
-	//TODO call check_player_state(player_ptr)
 	while(1){//dans cette boucle tant que on n'est pas dans un jeu
-		// dire au client message d'autres joueurs connectés
+		
 		//TODO call check_player_state(player_ptr)
 		// demander si envoyer invitation(voir liste joueur) ou juste attendre
 		//TODO call check_player_state(player_ptr)
 		//if attendre : sleep(5); continue; (on revient au début
 		//if envoyer invit:
 			//envoyer liste noms joueurs dispo au client et demander choix 
+			// recevoir la réponse du client
 			//TODO call check_player_state(player_ptr)
 			//envoyer l'invitation à autre joueur
-		//TODO call check_player_state(player_ptr) 
+			//envoyer au client le message que l'invitation a bien été envoyé
 	}		
 	
 	

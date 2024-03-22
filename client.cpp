@@ -5,6 +5,37 @@
 #include <iostream>
 #include "base.h"
 
+void communicate_check_player_state(int socket){
+	//receive an int that give the state and will influence the next actions
+	int player_state = -1;
+	size = read(f, player_state, sizeof(player_state));
+	if(size != sizeof(player_state));
+	
+	if(player_state==0){/* On ne fait rien*/}
+	else if(player_state==1){
+		//receive the names of inviting players
+		//ask which choice or reject (numbers accept, n:refuse)
+		//send answer to server
+		//if accepted :
+			//
+		else{
+			//rien faire 
+		}
+		
+		
+	}
+	else if(player_state==2){
+		// wait for further communication to say we enter the game
+	}
+	else if(player_state==-1){
+		std::cout<< "communication with server seemed to fail in communicate_check_player_state" << std::endl;
+	}
+	else{
+		//TODO : manage problem
+	}
+} 
+
+
 int main (int argc, char * argv[])
 
 {
@@ -79,6 +110,36 @@ int main (int argc, char * argv[])
 	std::cout << message << std::endl;
 	buffer_message.clear()
 	
+	//receive the message that someone has joined server
+	size = read(f, buffer_message, sizeof(buffer_message));
+	if(size != sizeof(buffer_message));
+	std::string message(buffer_message);
+	std::cout << message << std::endl;
+	buffer_message.clear()
+	//enter the connexion loop
+	
+	while(1){
+		//TODO communication avec check_player_state
+		
+		// choisir envoyer invitation (donc voir liste) ou juste attendre
+		// envoyer la réponse au serveur
+		
+		//TODO communication avec check_player_state
+		
+		//if attendre :
+			//afficher qu'on est en attente, revenir au début //l'attente est gérée côté serveur, on attend qu'il reprenne la communication avec check_player_state
+		//if envoyer invit:
+			//recevoir la liste des noms des joueurs dispo, afficher
+			// demander le choix du joueur
+			// envoyer la réponse au serveur
+	
+			//TODO communication avec check_player_state
+			
+			//recevoir le message de confirmation de l'envoie de l'invitation, retour au début
+	
+	}
+	
+	/* début bazar inutile
 	int int_buff;
 	size = read(f, int_buff, sizeof(int_buff));
 	if(size != sizeof(int_buff));
@@ -103,7 +164,7 @@ int main (int argc, char * argv[])
 	else{} //there is a problem in the communication
 	
 	int_buff.clear()
-	
+	*///fin bazar
 	
 	//size = write(f, player_name, 1 + strlen(player_name));
 	
