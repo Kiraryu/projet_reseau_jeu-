@@ -1,4 +1,5 @@
 #include <string.h>
+#include <string>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
@@ -8,38 +9,99 @@
 
 
 void check_player_state(player_ptr){
+	socket = player_ptr->get_socket();
+	//send the client the list of player name it invited
+	std::vector<Player*> invited_list = player_ptr->get_invited_players();//TODO : implement get_invited_players
+	std::string invited_players_name;
+	for(int i=0;i< invited_list.size();i++){
+		invited_players_name += invited_list[i]->get_name();
+		invited_players_name += " ; ";//the delimiter between names
+	}
+	int name_list_size = invited_players_name.size();
+	//send the name_list_size for the buffer to know the length
+	size = write(socket, name_list_size, sizeof(name_list_size));// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(name_list_size));
+	
+	//send the list of invited players names
+	const char* buffer = invited_players_name.c_str();
+	size_t buffer_size = invited_players_name.size();
+	ssize_t size;
+	size = write(s, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(buffer));
+	
+	
+	
 	int player_state = player_ptr->get_state();
 	//sent client the state to tell it what to do next
-	size = write(f, player_state, sizeof(player_state));// send the size of the string so the client can adapt buffer size
+	size = write(socket, player_state, sizeof(player_state));// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(player_state));
 	
 	
 	if(player_state==0){/* On ne fait rien*/}
-	else if(player_state==1){//you are invited to a game
-		socket = player_ptr->get_socket();
+	while(player_state==1){//you are invited to a game
+		
 		std::vector<Player*> inviting_list = player_ptr->get_inviting_players();
-		//send client names of players inviting it
+		int player_number = inviting_list.size();
+		size = write(socket, player_number, sizeof(player_number));
+		if(size != sizeof(player_number));
+		
+		
+		std::string inviting_players_name;
+		for(int i=0;i< inviting_list.size();i++){
+			inviting_players_name += std::to_string(i) += " : "
+			inviting_players_name += inviting_list[i]->get_name();
+			inviting_players_name += "\n";
+		}
+		int name_list_size = inviting_players_name.size();
+		//send the name_list_size for the buffer to know the length
+		size = write(socket, name_list_size, sizeof(name_list_size));// send the size of the string so the client can adapt buffer size
+		if(size != sizeof(name_list_size));
+		
+		//send the list of inviting players names
+		const char* buffer = inviting_players_name.c_str();
+		size_t buffer_size = inviting_players_name.size();
+		ssize_t size;
+		size = write(s, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
+		if(size != sizeof(buffer));
+		
 		//ask (wait for answer) client if accept or reject invitation
-		//receive answer from client
-		//if(accept)
+		int players_choice = 0;
+		size = read(f, players_choice, sizeof(players_choice));
+		if(size != sizeof(players_choice));
+		
+		if(players_choice==-1){//cas de refus
+			player_ptr->change_state(0);
+			for(int i=0; i<inviting_list.size();i++){
+				player_ptr->reject_invitation(inviting_list[i]);
+			}
+			player_state = player_ptr->get_state();
+		}
+		else if(players_choice>=0 || players_choice<player_number){
 			//invalidate other sent invitations (by me)
 			//ask inviting to invalidate his other invitation
 			//check if invitation is still valid
-			//change the state of this and inviting to 2
-			
+			//if valid :
+				// sent the client that invitation valid (1)
+				//change the state of this and inviting to 2
+			//else //not valid
+				//send client invitation not valid (0)
+				//if no more invitation, change player_state to 0
+			player_state = player_ptr->get_state();
+		}
 		else{
-			player_ptr->change_state(0);
-			for(int i=0; i<inviting_list.size();i++){
-				inviting_list[i]->invitation_rejected(player_ptr);
-			}
-		}//rejection
+			// TODO : error case to manage
+		}
 	}
 	// in the state was already 2, or just passed to 2
 	player_state = player_ptr->get_state();
 	if(player_state==2){
+		//tell the client we enter the game (1)
 		//enter the game
 	
 		}
+	else{
+		//tell the client we do not enter the game
+	}
 }
 
 void * hconnect (void * fd)

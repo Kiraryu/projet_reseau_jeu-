@@ -1,38 +1,116 @@
 #include <unistd.h>
 #include <string.h>
+#include <string>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <iostream>
 #include "base.h"
 
 void communicate_check_player_state(int socket){
+	//receive the name of players in pending invitation
+	int buffer_size = 0;
+	size = read(f, buffer_size, sizeof(buffer_size));
+	if(size != sizeof(buffer_size));
+	
+	char* buffer = new char[buffer_size];
+	size = read(f, buffer, sizeof(buffer));
+	if(size != sizeof(buffer));
+	std::string invited_player_name(buffer);
+	
+	std::cout<< "The list player you invited, that have not already rejected your invitation : " << std::endl;
+	std::cout << invited_player_name << std::endl;
+	
+
 	//receive an int that give the state and will influence the next actions
 	int player_state = -1;
 	size = read(f, player_state, sizeof(player_state));
 	if(size != sizeof(player_state));
 	
 	if(player_state==0){/* On ne fait rien*/}
-	else if(player_state==1){
-		//receive the names of inviting players
-		//ask which choice or reject (numbers accept, n:refuse)
-		//send answer to server
-		//if accepted :
-			//
-		else{
-			//rien faire 
-		}
-		
-		
+	else if(player_state==-1){
+		std::cout<< "communication with server seemed to fail in communicate_check_player_state" << std::endl;
 	}
 	else if(player_state==2){
 		// wait for further communication to say we enter the game
 	}
-	else if(player_state==-1){
-		std::cout<< "communication with server seemed to fail in communicate_check_player_state" << std::endl;
-	}
 	else{
 		//TODO : manage problem
 	}
+	while(player_state==1){
+		//receive the number of inviting players
+		int players_number = 0;
+		size = read(f, players_number, sizeof(players_number));
+		if(size != sizeof(players_number));
+		
+		//receive the names of inviting players
+		int buffer_size = 0;
+		size = read(f, buffer_size, sizeof(buffer_size));
+		if(size != sizeof(buffer_size));
+		
+		
+		char* buffer = new char[buffer_size];
+		size = read(f, buffer, sizeof(buffer));
+		if(size != sizeof(buffer));
+		std::string inviting_players_name(buffer);
+		std::cout << "The following players invited you : " << std::endl;
+		std::cout << inviting_players_name;
+		std::cout << "To accept an invitation enter the number, to refuse enter 'n'."
+		
+		std::string player_choice = " ";
+		int int_player_choice;
+		bool invalid_player_choice = true;
+		while (!(std::cin >> player_choice) || invalid_player_choice)
+		{	
+			if(player_choice=="n"){
+				invalid_player_choice= false;
+				int_player_choice = -1;// cas de refus d'invitation
+				continue;
+			}
+			//essayer de le convertir en int, si marche pas continue
+			else{
+				int choice
+				try {
+					int_player_choice = stoi(player_choice);
+					if(int_player_choice>=0 || int_player_choice<players_number){
+						invalid_player_choice= false;
+						//cas d'acceptation d'invitation
+					}
+				}
+				catch(...){
+					std::cout << "Invalid choice, Please enter a correct number to accept or 'n' to refuse " << std::endl;
+				}
+			}
+			std::cin.clear();
+			std::cin.(1000, '\n');// TODO : gérer si la personne met plus de 1000 char dans la console
+		}
+		//send answer to server
+		size = write(socket, int_player_choice, sizeof(int_player_choice));
+		if(size != sizeof(int_player_choice));
+		
+		
+		
+		//if accepted :
+			//receive invitation valid or not
+			//if 1 (valid)
+				//do nothing, the game will enter after
+			//else (not valid)
+				//print that invitation not valid anymore
+		else{	
+			//afficher qu'on a refusé les invitations 
+		}
+	}
+	int game_state = -1;
+	size = read(f, player_state, sizeof(game_state));
+	if(size != sizeof(game_state));
+	if(game_state==1){
+		//afficher We enter the game
+	}
+	else{
+		// afficher qu'on retourne à ce à quoi on était
+	}
+	
+	
+	
 } 
 
 
