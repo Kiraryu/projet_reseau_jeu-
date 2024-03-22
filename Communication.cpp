@@ -11,7 +11,7 @@ Communication::start_game(Player player1, Player player2){
 	*/
 	
 	Game* new_game;
-	// Implémenter Sémaphore ***
+	// Implémenter Sémaphore *** TODO
 	games_list.push_back(new_game);
 	
 }

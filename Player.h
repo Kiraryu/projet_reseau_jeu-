@@ -18,7 +18,7 @@ public:
 	Player(int socket, std::string name);
 	~Player();
 	
-	void send_invitation(Player* sending_player_id); // invitation to play sent by another player who gives his player_id when calling the target's send_invitation method.
+
 	void invitation_rejected(Player* rejecting_player_id); // reject the invitation you have recieved
 	void invitation_invalidated(Player* rejecting_player_id); // TODO invalidate the invitations you have SENT to other players
 	
@@ -35,3 +35,5 @@ public:
 	std::vector<Player*> get_inviting_players();
 	
 }
+
+//void send_invitation(Player* sending_player_id); // invitation to play sent by another player who gives his player_id when calling the target's send_invitation method.
