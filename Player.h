@@ -33,7 +33,8 @@ public:
 	void change_state(int new_state);
 	void change_player_turn_number(int new_turn_nb);
 	
-	
+	std::vector<Player*> get_invited_players();//done : develop get_invited_players in player.cpp
+	std::vector<Player*> get_inviting_players();//done : develop get_inviting_players in player.cpp
 	int get_socket();
 	int get_state();
 	std::string get_name();

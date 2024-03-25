@@ -57,6 +57,14 @@ int receive_invitation(Player* inviting_player_id){// check the state of this. I
 int Player::get_socket(){
 	return m_socket;
 }
+std::vector<Player*> Player::get_invited_players(){
+	return m_invited_players;
+}
+
+std::vector<Player*> Player::get_inviting_players(){
+	return m_inviting_players;
+}
+
 int Player::get_state(){
 	return m_state;
 }
