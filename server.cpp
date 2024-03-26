@@ -1,3 +1,4 @@
+
 #include <string.h>
 #include <string>
 #include <unistd.h>
@@ -6,28 +7,31 @@
 #include "base.h"
 #include "Communication.h"
 #include <time.h>
-
+#include <vector>
 
 int check_player_state(Player* player_ptr, int socket){
 	Player* partner_player_ptr;
 	socket = player_ptr->get_socket();
 	//TODO : do it only in the case player state==1
 	//send the client the list of player name it invited
-	std::vector<Player*> invited_list = player_ptr->get_invited_players();//TODO : implement get_invited_players
+	std::vector<Player*> invited_list = player_ptr->get_invited_players();
 	std::string invited_players_name;
-	for(int i=0;i< invited_list.size();i++){
+	for(int i=0;i< (int)invited_list.size();i++){
 		invited_players_name += invited_list[i]->get_name();
 		invited_players_name += " ; ";//the delimiter between names
 	}
 	int name_list_size = invited_players_name.size();
 	//send the name_list_size for the buffer to know the length
-	size = write(socket, name_list_size, sizeof(name_list_size));// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(name_list_size));
+	char* int_buffer = new char[1];
+	int_buffer[0] = name_list_size;//fonctionne tant que inférieur à 122
+	ssize_t size;
+	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(int_buffer));
 	
 	//send the list of invited players names
 	const char* buffer = invited_players_name.c_str();
 	size_t buffer_size = invited_players_name.size();
-	ssize_t size;
+	
 	size = write(socket, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(buffer));
 	
@@ -35,8 +39,9 @@ int check_player_state(Player* player_ptr, int socket){
 	
 	int player_state = player_ptr->get_state();
 	//sent client the state to tell it what to do next
-	size = write(socket, player_state, sizeof(player_state));// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(player_state));
+	int_buffer[0] = player_state;
+	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(int_buffer));
 	
 	
 	if(player_state==0){/* On ne fait rien*/}
@@ -44,36 +49,39 @@ int check_player_state(Player* player_ptr, int socket){
 		
 		std::vector<Player*> inviting_list = player_ptr->get_inviting_players();
 		int player_number = inviting_list.size();
-		size = write(socket, player_number, sizeof(player_number));
-		if(size != sizeof(player_number));
+		int_buffer[0] = player_number;
+		size = write(socket, int_buffer, sizeof(int_buffer));
+		if(size != sizeof(int_buffer));
 		
 		
 		std::string inviting_players_name;
-		for(int i=0;i< inviting_list.size();i++){
-			inviting_players_name += std::to_string(i) += " : "
+		for(int i=0;i< (int)inviting_list.size();i++){
+			inviting_players_name += std::to_string(i) += " : ";
 			inviting_players_name += inviting_list[i]->get_name();
 			inviting_players_name += "\n";
 		}
-		int name_list_size = inviting_players_name.size();
+		int name_list_size2 = inviting_players_name.size();
 		//send the name_list_size for the buffer to know the length
-		size = write(socket, name_list_size, sizeof(name_list_size));// send the size of the string so the client can adapt buffer size
-		if(size != sizeof(name_list_size));
+		int_buffer[0] = name_list_size2;
+		size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
+		if(size != sizeof(int_buffer));
 		
 		//send the list of inviting players names
-		const char* buffer = inviting_players_name.c_str();
-		size_t buffer_size = inviting_players_name.size();
-		ssize_t size;
-		size = write(socket, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
-		if(size != sizeof(buffer));
+		const char* buffer2 = inviting_players_name.c_str();
+		size_t buffer_size2 = inviting_players_name.size();
+		//ssize_t size;
+		size = write(socket, buffer2, buffer_size2);// send the size of the string so the client can adapt buffer size
+		if(size != sizeof(buffer2));
 		
 		//ask (wait for answer) client if accept or reject invitation
 		int players_choice = 0;
-		size = read(socket, players_choice, sizeof(players_choice));
-		if(size != sizeof(players_choice));
+		size = read(socket, int_buffer, sizeof(int_buffer));
+		if(size != sizeof(int_buffer));
+		players_choice = int_buffer[0];
 		
 		if(players_choice==-1){//cas de refus
 			player_ptr->change_state(0);
-			for(int i=0; i<inviting_list.size();i++){
+			for(int i=0; i< (int)inviting_list.size();i++){
 				player_ptr->reject_invitation(inviting_list[i]);
 			}
 			player_state = player_ptr->get_state();
@@ -83,14 +91,14 @@ int check_player_state(Player* player_ptr, int socket){
 			partner_player_ptr = inviting_list[players_choice]; 
 			
 			//invalidate other sent invitations (by me)
-			for(int i=0; i<invited_list.size();i++){
+			for(int i=0; i< (int)invited_list.size();i++){
 				player_ptr->invalidate_invitation(invited_list[i]);
 			}
 			//ask inviting to invalidate his other invitation
 			std::vector<Player*> partner_invited_list = partner_player_ptr->get_invited_players();
 			bool invitation_still_valid = false;
 			
-			for(int i=0; i<partner_invited_list.size();i++){
+			for(int i=0; i< (int)partner_invited_list.size();i++){
 				if(partner_invited_list[i]==player_ptr){//invitation is still valid
 					invitation_still_valid=true;
 				}
@@ -99,28 +107,28 @@ int check_player_state(Player* player_ptr, int socket){
 			
 			// sent to the client if the invitation is valid or not
 			int invitation_valid = invitation_still_valid;
-			size = write(socket, invitation_valid, sizeof(invitation_valid));
-			if(size != sizeof(invitation_valid));
+			size = write(socket, &invitation_valid, sizeof(&invitation_valid));
+			if(size != sizeof(&invitation_valid));
 		
 			
 			//check if invitation is still valid
 			if(invitation_still_valid){
 				//reject all other received invitation, and ask partner to do so;
-				for(int i=0; i<inviting_list.size();i++){
+				for(int i=0; i<(int)inviting_list.size();i++){
 					player_ptr->reject_invitation(inviting_list[i]);
 				}
 				std::vector<Player*> partner_inviting_list = partner_player_ptr->get_inviting_players();
 				
-				for(int i=0; i<partner_inviting_list.size();i++){
+				for(int i=0; i<(int)partner_inviting_list.size();i++){
 					partner_player_ptr->reject_invitation(partner_inviting_list[i]);
 				}
 				// send name of the partner player to client
 				std::string partner_name = partner_player_ptr->get_name();//should be less than 50 char
-				const char* buffer = partner_name.c_str();
-				size_t buffer_size = partner_name.size();//50 max
-				ssize_t size;
-				size = write(socket, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
-				if(size != sizeof(buffer));
+				const char* buffer3 = partner_name.c_str();
+				size_t buffer_size3 = partner_name.size();//50 max
+				//ssize_t size;
+				size = write(socket, buffer3, buffer_size3);// send the size of the string so the client can adapt buffer size
+				if(size != sizeof(buffer3));
 				//change the state of this and inviting to 2
 				partner_player_ptr->change_state(2);
 				player_ptr->change_state(2);
@@ -139,7 +147,7 @@ int check_player_state(Player* player_ptr, int socket){
 			//update player_state in case its value has changed to 0 or 2
 			player_state = player_ptr->get_state();
 			//send the new player state to client to enable it to go out of loop
-			size = write(socket, player_state, sizeof(player_state));
+			size = write(socket, &player_state, sizeof(player_state));
 			if(size != sizeof(player_state));
 		}
 		else{
@@ -149,7 +157,7 @@ int check_player_state(Player* player_ptr, int socket){
 	}
 	// in the state was already 2, or just passed to 2
 	player_state = player_ptr->get_state();
-	size = write(socket, player_state, sizeof(player_state));
+	size = write(socket, &player_state, sizeof(player_state));
 	if(size != sizeof(player_state));
 	if(player_state==2){
 		
@@ -178,20 +186,20 @@ void * hconnect (void * fd)
 	//size_t len_name;
 	ssize_t size;
 	//size = read(s, &len_name, sizeof(len_name));// get the name len to define size of buffer
-	char buffer[50] = {0};
-	size = read(f, buffer, sizeof(buffer));
-	if(size != sizeof(buffer));
-	std::string player_name(buffer);
+	char buffer4[50] = {0};
+	size = read(f, buffer4, sizeof(buffer4));
+	if(size != sizeof(buffer4));
+	std::string player_name(buffer4);
 	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
 	
 	Player* player_ptr = global_com.create_player(f, player_name); //state of player == 0
 	// TO CHECK TODO : send to client waiting for another player
 	std::string message = "Waiting for another player to connect to the server";
-	const char* buffer = message.c_str();
-	size_t buffer_size = message.size(); // should be max 50
+	const char* buffer5 = message.c_str();
+	size_t buffer_size5 = message.size(); // should be max 50
 	//ssize_t size;
-	size = write(f, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(buffer));
+	size = write(f, buffer5, buffer_size5);// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(buffer5));
 	
 	while(1) {//s'exécute tant que je suis le seul joueur dispo sur le serveur
 		int break_or_not = 0;

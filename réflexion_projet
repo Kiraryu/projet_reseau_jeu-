@@ -51,10 +51,25 @@ La boucle de ce que fais le joueur en attendant qu'il se passe les événements 
 - la boucle 
 
 
+interactions joueur dans le script de jeu :
+
+partie_en_cours = true;
+while(partie_en_cours)
+
+	std::cout << grid
+	std::cout << "joueur 1 c'est à toi, où places-tu ton pion ?" << std::endl;
+	int placement_j1;
+	std::string answer_joueur_1;
+	std::cin >> answer_joueur_1;
+	placement_j1 = to_int(answer_joueur_1);
+
+	//vérifier que c'est valide
+	// modifier la grille en conséquence
+	// vérifier que c'est pas la fin de la partie
+	// passer au joueur suivant
 
 
-
-
+ma
 
 
 

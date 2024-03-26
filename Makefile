@@ -1,5 +1,5 @@
 CLIENT = client.o
-SERVER = server.o
+SERVER = server.o Communication.o Player.o 
 
 all: client server
 
