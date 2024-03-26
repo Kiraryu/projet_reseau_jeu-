@@ -1,10 +1,12 @@
 #pragma once
+#include "Player.h"
+# include <vector>
 
 class Communication {
 
 private :
 	std::vector<Player*> players_list;
-	std::vector<Game*> games_list; 
+	//std::vector<Game*> games_list; 
 
 public :
 	Communication();

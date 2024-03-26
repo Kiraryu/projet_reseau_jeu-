@@ -75,9 +75,6 @@ int Player::get_turn_nb(){
 	return m_turn_number;
 }
 
-std::vector<Player*> Player::get_inviting_players(){
-	return m_inviting_players;
-}
 
 
 void Player::change_player_turn_number(int new_turn_nb)

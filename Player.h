@@ -1,8 +1,8 @@
 #pragma once
 #include<string>
 
-#include "Game.h"
-#include "Grid.h"
+//#include "Game.h"
+//#include "Grid.h"
 
 class Player{
 
@@ -40,7 +40,6 @@ public:
 	std::string get_name();
 	int get_turn_nb();
 	
-	std::vector<Player*> get_inviting_players();
 	
 }
 

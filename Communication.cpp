@@ -1,5 +1,5 @@
 # include "Communication.h"
-# include <vector>
+
 
 Communication::Communication(){
 	
@@ -16,9 +16,9 @@ Communication::start_game(Player player1, Player player2){
 	
 	*/
 	
-	Game* new_game;
+	//Game* new_game;
 	// Implémenter Sémaphore *** TODO
-	games_list.push_back(new_game);
+	//games_list.push_back(new_game);
 	
 }
 

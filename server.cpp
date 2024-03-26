@@ -13,7 +13,7 @@ int check_player_state(Player* player_ptr, int socket){
 	socket = player_ptr->get_socket();
 	//TODO : do it only in the case player state==1
 	//send the client the list of player name it invited
-	std::vector<Player*> invited_list = player_ptr->get_invited_players();//TODO : implement get_invited_players
+	std::vector<Player*> invited_list = player_ptr->get_invited_players();
 	std::string invited_players_name;
 	for(int i=0;i< invited_list.size();i++){
 		invited_players_name += invited_list[i]->get_name();
