@@ -454,3 +454,102 @@ int main (int argc, char ** argv)
 
         return 0;
 }
+
+
+
+
+
+
+
+// code des règles du jeu 
+bool checkWin(char board[3][3]) {
+    // Check rows
+    for (int i = 0; i < 3; ++i) {
+        if (board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
+            return true;
+        }
+    }
+
+    // Check columns
+    for (int i = 0; i < 3; ++i) {
+        if (board[0][i] == board[1][i] && board[1][i] == board[2][i]) {
+            return true;
+        }
+    }
+
+    // Check diagonals
+    if ((board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
+        (board[0][2] == board[1][1] && board[1][1] == board[2][0])) {
+        return true;
+    }
+
+    return false;
+}
+
+bool checkTie(char board[3][3]) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (board[i][j] != 'X' && board[i][j] != 'O') {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+
+// boucle de vérif
+void playGame(int clientSocket) {
+    char board[3][3] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    char message[100];
+    int choice;
+    int currentPlayer = 0;
+
+    do {
+        // Send the current state of the board to clients
+        send(clientSocket, board, sizeof(board), 0);
+
+        // Receive the choice from the current player
+        recv(clientSocket, &choice, sizeof(choice), 0);
+
+        // Update the board with the current player's move
+        char symbol = (currentPlayer == 0) ? 'X' : 'O';
+        int row = (choice - 1) / 3;
+        int col = (choice - 1) % 3;
+
+        if (board[row][col] != 'X' && board[row][col] != 'O') {
+            board[row][col] = symbol;
+
+            // Check for win condition
+            if (checkWin(board)) {
+                // Inform clients about win
+                sprintf(message, "Player %c wins!\n", symbol);
+                send(clientSocket, message, sizeof(message), 0);
+                break;
+            }
+
+            // Check for tie
+            if (checkTie(board)) {
+                // Inform clients about tie
+                strcpy(message, "It's a tie!\n");
+                send(clientSocket, message, sizeof(message), 0);
+                break;
+            }
+
+            currentPlayer = 1 - currentPlayer; // Switch player
+        }
+    } while (/* condition for game continuation */);
+
+    // Send the final state of the board to clients
+    send(clientSocket, board, sizeof(board), 0);
+}
+
+
+
+
+
+
+
+
+
