@@ -1,16 +1,16 @@
-
 #include <string.h>
 #include <string>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
 #include "base.h"
-#include "Communication.h"
+
 #include <time.h>
 #include <vector>
+#include "param.h" //the class to communicate needed parameters to threads
 
 int check_player_state(Player* player_ptr, int socket){
-	Player* partner_player_ptr;
+	Player* partner_player_ptr = nullptr;//to be shure it is intialized
 	socket = player_ptr->get_socket();
 	//TODO : do it only in the case player state==1
 	//send the client the list of player name it invited
@@ -22,7 +22,7 @@ int check_player_state(Player* player_ptr, int socket){
 	}
 	int name_list_size = invited_players_name.size();
 	//send the name_list_size for the buffer to know the length
-	char* int_buffer = new char[1];
+	char* int_buffer = new char[10];// a size of 1 should be enough, but in case, 10, trying to avoid errors
 	int_buffer[0] = name_list_size;//fonctionne tant que inférieur à 122
 	ssize_t size;
 	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
@@ -107,8 +107,8 @@ int check_player_state(Player* player_ptr, int socket){
 			
 			// sent to the client if the invitation is valid or not
 			int invitation_valid = invitation_still_valid;
-			size = write(socket, &invitation_valid, sizeof(&invitation_valid));
-			if(size != sizeof(&invitation_valid));
+			size = write(socket, &invitation_valid, sizeof(invitation_valid));
+			if(size != sizeof(invitation_valid));
 		
 			
 			//check if invitation is still valid
@@ -175,10 +175,12 @@ int check_player_state(Player* player_ptr, int socket){
 	}
 }
 
-void * hconnect (void * fd)
+void * hconnect (void * thread_param_ptr)
 
-{
-	int f = *((int *)fd);// get socket number
+{	
+	Param thread_param = *((Param*) thread_param_ptr);
+	Communication global_com(*(thread_param.m_global_com_ptr));//TODO : créer constructeur de recopie
+	int f = *(thread_param.m_socket_ptr);// get socket number
 
 	// regsiter the new player in the communication instance
 	// get the name of the player :
@@ -200,22 +202,39 @@ void * hconnect (void * fd)
 	//ssize_t size;
 	size = write(f, buffer5, buffer_size5);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(buffer5));
-	
+	std::vector<Player*> player_list = global_com.get_player_list();
+	int counter = 0;
 	while(1) {//s'exécute tant que je suis le seul joueur dispo sur le serveur
 		int break_or_not = 0;
-		player_list = global_com.get_player_list()
-		if(player_list.size() <=1){/*just do nothing, wait*/}
+		player_list = global_com.get_player_list();
+		if(player_list.size() <=1){
+			/*just do nothing, wait*/
+			counter+=1;
+			if(counter==0){
+				std::cout << "Only one player on the server" << std::endl;
+				std::string player_names;
+				for(int i=0; i< (int)player_list.size() ;i++){
+					player_names+= player_list[i]->get_name();
+					player_names += " ; ";
+				}
+				std::cout << "Player names : " <<std::endl;
+				std::cout << player_names << std::endl;
+			}
+			else if(counter==1000){
+				counter=0;
+			}
+		}	
 		else{
 			Player* other_player_ptr;
 			// other player connected, check if some are available
-			for(int i = 0; i<player_list.size();i++){
+			for(int i = 0; i<(int)player_list.size();i++){
 				//check if it is not us
 				other_player_ptr = player_list[i];
 				int player_socket = other_player_ptr->get_socket();
 				if(player_socket == f){
 					continue; //it is us
 					}
-				int player_state = player.get_state();
+				int player_state = player_ptr->get_state();
 				//get the state
 				//if available break the for and while loop
 				if(player_state == 0 || player_state == 1){
@@ -231,7 +250,7 @@ void * hconnect (void * fd)
 		struct timespec sleeping_time;
 		sleeping_time.tv_sec = 0;
 		sleeping_time.tv_nsec = 100000;
-		nanosleep(&ts, nullptr);
+		nanosleep(&sleeping_time, nullptr);
 		/*std::chrono::milliseconds timespan(100);
 		std::this_thread::sleep_for(timespan);//TO CHECK TODO :voir avec le prof si on peut bien utiliser ça. */
 	
@@ -240,15 +259,13 @@ void * hconnect (void * fd)
 	//ici, il y a des joueurs connectés
 	//check si ce joueur est invité:
 	// dire au client message d'autres joueurs connectés (on entre dans les boucles de connexions)
-	message.clear();
-	buffer.clear();
-	buffer_size.clear();
-	message = "Other players have joined or are available again !";
-	buffer = message.c_str();
-	buffer_size = message.size(); // should be max 100
+	
+	std::string message6 = "Other players have joined or are available again !";
+	const char* buffer6 = message6.c_str();
+	size_t buffer_size6 = message6.size(); // should be max 100
 	//ssize_t size;
-	size = write(f, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(buffer));
+	size = write(f, buffer6, buffer_size6);// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(buffer6));
 	
 	int starting_game = 0;
 	while(1){//dans cette boucle tant que on n'est pas dans un jeu
@@ -264,15 +281,15 @@ void * hconnect (void * fd)
 		std::vector<Player*> global_player_list = global_com.get_player_list();
 		//get available players :
 		std::vector<Player*> available_player_list;
-		for(int i=0; i<global_player_list.size();i++){
+		for(int i=0; i<(int)global_player_list.size();i++){
 			int player_state = global_player_list[i]->get_state();
 			if(player_state==0||player_state==1){
 				available_player_list.push_back(global_player_list[i]);
 			}
 		}
 		std::string available_player_name;
-		for(int i=0;i< available_player_list.size();i++){
-			available_player_name += std::to_string(i) += " : "
+		for(int i=0;i< (int)available_player_list.size();i++){
+			available_player_name += std::to_string(i) += " : ";
 			available_player_name += available_player_list[i]->get_name();
 			available_player_name += "\n";
 		}
@@ -280,22 +297,22 @@ void * hconnect (void * fd)
 		int name_list_size = available_player_name.size();
 		//send the name_list_size for the buffer to know the length
 		int number_available_players = available_player_list.size();
-		size = write(f, number_available_players, sizeof(number_available_players));
+		size = write(f, &number_available_players, sizeof(number_available_players));
 		if(size != sizeof(number_available_players));
 		
-		size = write(f, name_list_size, sizeof(name_list_size));
+		size = write(f, &name_list_size, sizeof(name_list_size));
 		if(size != sizeof(name_list_size));
 		
-		const char* buffer = available_player_name.c_str();
-		size_t buffer_size = available_player_name.size();
-		ssize_t size;
-		size = write(f, buffer, buffer_size);/
-		if(size != sizeof(buffer));
+		const char* buffer7 = available_player_name.c_str();
+		size_t buffer_size7 = available_player_name.size();
+		//ssize_t size;
+		size = write(f, buffer7, buffer_size7);
+		if(size != sizeof(buffer7));
 		
 		
 		//recevoir la réponse sous forme d'int (-1 si refus et attente)
 		int players_choice = 0;
-		size = read(socket, players_choice, sizeof(players_choice));
+		size = read(f, &players_choice, sizeof(players_choice));
 		if(size != sizeof(players_choice));
 		
 		//call check_player_state(player_ptr,socket)
@@ -311,16 +328,16 @@ void * hconnect (void * fd)
 		//else if envoyer invit:
 			//envoyer l'invitation au joueur sélectionner 
 			//envoyer au client le message que l'invitation a bien été envoyé
-		else if(players_choice>=0 && players_choice<available_player_list.size()){
+		else if(players_choice>=0 && players_choice<(int)available_player_list.size()){
 			player_ptr->send_invitation(available_player_list[players_choice]);
-			std::string message = "Your invitation to player "+available_player_list[players_choice]->get_name()+" has been sent";
+			std::string message8 = "Your invitation to player "+available_player_list[players_choice]->get_name()+" has been sent";
 			
 			
-			const char* buffer = message.c_str();
-			size_t buffer_size = message.size();//has to be <100
-			ssize_t size;
-			size = write(f, buffer, buffer_size);/
-			if(size != sizeof(buffer));
+			const char* buffer8 = message8.c_str();
+			size_t buffer_size8 = message8.size();//has to be <100
+			//ssize_t size;
+			size = write(f, buffer8, buffer_size8);
+			if(size != sizeof(buffer8));
 		}
 	}		
 	
@@ -394,7 +411,7 @@ void * hconnect (void * fd)
 	*/
 	close(f); //close the socket
 
-	free(fd); //free the memory of socket pointer
+	free(thread_param_ptr); //free the memory of parameters pointer
 	pthread_detach(pthread_self());
 	return NULL;	
 }
@@ -457,7 +474,8 @@ int main (int argc, char ** argv)
 
 		int * fd = new int;
 		*fd = f;
-		pthread_create(&tid, NULL, hconnect, (void *)fd);
+		Param* thread_param = new Param(&global_com, fd);
+		pthread_create(&tid, NULL, hconnect, (void *)thread_param);
         }
 
         return 0;
