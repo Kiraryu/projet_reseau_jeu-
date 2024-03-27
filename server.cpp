@@ -209,7 +209,9 @@ void * hconnect (void * thread_param_ptr)
 		player_list = global_com.get_player_list();
 		if(player_list.size() <=1){
 			/*just do nothing, wait*/
-			counter+=1;
+			if(counter==1000){
+				counter=0;
+			}
 			if(counter==0){
 				std::cout << "Only one player on the server" << std::endl;
 				std::string player_names;
@@ -220,9 +222,9 @@ void * hconnect (void * thread_param_ptr)
 				std::cout << "Player names : " <<std::endl;
 				std::cout << player_names << std::endl;
 			}
-			else if(counter==1000){
-				counter=0;
-			}
+			counter+=1;
+			
+			
 		}	
 		else{
 			Player* other_player_ptr;
