@@ -71,7 +71,7 @@ while(partie_en_cours)
 
 ma
 
-
+Je me demande à quel point on a besoin des sémaphore pour les moments où on accède juste en lecture.
 
 
 
