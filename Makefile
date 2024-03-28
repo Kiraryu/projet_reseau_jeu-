@@ -1,17 +1,20 @@
-CLIENT = client.o
-SERVER = server.o Communication.o Player.o param.o
+CC = g++
+CFLAGS = -Wall -Wshadow -Werror -O
 
 all: client server
 
-server: $(SERVER)
-	c++ -o server $(SERVER) -lpthread
+client: client.o
+	$(CC) $(CFLAGS) -o client client.o
 
-client: $(CLIENT)
-	c++ -o client $(CLIENT)
+server: server.o
+	$(CC) $(CFLAGS) -o server server.o
 
--include $(CLIENT:.o=.d)
--include $(SERVER:.o=.d)
+client.o: client.cpp
+	$(CC) $(CFLAGS) -c client.cpp -o client.o
 
-%.o: %.cpp
-	c++ -c $*.cpp -o $*.o -Wall -Wshadow -Werror -O
-	c++ -MM $*.cpp > $*.d
+server.o: server.cpp
+	$(CC) $(CFLAGS) -c server.cpp -o server.o
+
+clean:
+	rm -f client server *.o
+
