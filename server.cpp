@@ -10,6 +10,7 @@
 #include <vector>
 #include "param.h" //the class to communicate needed parameters to threads
 #include <semaphore.h>
+#include <fcntl.h>
 
 // Define a semaphore for synchronization
 sem_t global_com_sem;
@@ -22,7 +23,8 @@ int check_player_state(Player* player_ptr, int socket){
 	//TODO : do it only in the case player state==1
 	//send the client the list of player name it invited
 	std::vector<Player*> invited_list = player_ptr->get_invited_players();
-	std::string invited_players_name;
+	std::string invited_players_name = "Players : \n";
+	
 	for(int i=0;i< (int)invited_list.size();i++){
 		invited_players_name += invited_list[i]->get_name();
 		invited_players_name += " ; ";//the delimiter between names
@@ -32,29 +34,66 @@ int check_player_state(Player* player_ptr, int socket){
 	char* int_buffer = new char[10];// a size of 1 should be enough, but in case, 10, trying to avoid errors
 	int_buffer[0] = name_list_size;//fonctionne tant que inférieur à 122
 	ssize_t size;
-	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
+	size = send(socket, int_buffer, sizeof(int_buffer),0);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(int_buffer)){
 		std::cout << "something failed here, bizarre..." << std::endl;
 	}
 	//send the list of invited players names
 	const char* buffer = invited_players_name.c_str();
 	size_t buffer_size = invited_players_name.size();
-	
-	size = write(socket, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(buffer)){
+	std::cout<<"debug : invited_players_name : " << invited_players_name << std::endl;
+	size = send(socket, buffer, buffer_size,0);// send the size of the string so the client can adapt buffer size
+	if(size != (long int)buffer_size){
 		std::cout << "something went wrong here, bizarre..." << std::endl;
-		std::cout << " sizeof(buffer) :  " << sizeof(buffer) << std::endl;
+		std::cout << " buffer_size :  " << sizeof(buffer) << std::endl;
 		std::cout << " size :  " << size << std::endl;
 		std::cout << "error : "<< strerror(errno) << std::endl;
 	}
+	
+	int flags = fcntl(socket, F_GETFL,0);
+	if (flags == -1) {
+		std::cerr << "failed to get socket flags : " << strerror(errno) << std::endl;
+	}
+	else{
+		if (flags & O_NONBLOCK){
+			std::cout << "Socket is in non blocking mode." << std::endl;
+		}
+		else{
+			std::cout << "Socket is in blocking mode." << std::endl;
+		}
+	}
+	
 	
 	
 	
 	int player_state = player_ptr->get_state();
 	//sent client the state to tell it what to do next
-	int_buffer[0] = player_state;
-	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(int_buffer));
+	//int_buffer[0] = player_state;
+	std::cout << "player_state : " << player_state << std::endl;
+	int player_state_ntw = htonl(player_state);
+	size = write(socket, &player_state_ntw, sizeof(player_state_ntw));// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(player_state_ntw)){
+		std::cout << "something can have failed here, bizarre..." << std::endl;
+		std::cout << " sizeof(player_state) :  " << sizeof(player_state_ntw) << std::endl;
+		std::cout << " size :  " << size << std::endl;
+		std::cout << "error : "<< strerror(errno) << std::endl;
+	}
+	else{
+		std::cout << "player_state correctly sent !" << std::endl;
+	}
+	
+	flags = fcntl(socket, F_GETFL,0);
+	if (flags == -1) {
+		std::cerr << "failed to get socket flags : " << strerror(errno) << std::endl;
+	}
+	else{
+		if (flags & O_NONBLOCK){
+			std::cout << "Socket is in non blocking mode." << std::endl;
+		}
+		else{
+			std::cout << "Socket is in blocking mode." << std::endl;
+		}
+	}
 	
 	
 	if(player_state==0){/* On ne fait rien*/}

@@ -11,14 +11,14 @@ int communicate_check_player_state(int socket){
 	int buffer_size = 0;
 	ssize_t size;
 	char* int_buffer = new char[10];// a size of 1 should be enough, but in case, 10, trying to avoid errors
-	size = read(socket, int_buffer, sizeof(int_buffer));
+	size = recv(socket, int_buffer, sizeof(int_buffer),0);
 	if(size != sizeof(int_buffer)){
 		std::cout << "something wrong here, strange..." << std::endl;
 	}
 	buffer_size = int_buffer[0];
 	
 	char* buffer = new char[buffer_size];
-	size = read(socket, buffer, sizeof(buffer));
+	size = recv(socket, buffer, sizeof(buffer),0);
 	if(size != sizeof(buffer)){
 		std::cout << "something wrong here, bizarre..." << std::endl;
 	}
@@ -29,11 +29,11 @@ int communicate_check_player_state(int socket){
 	
 
 	//receive an int that give the state and will influence the next actions
-	int player_state = -1;
-	size = read(socket, int_buffer, sizeof(int_buffer));
-	if(size != sizeof(int_buffer));
-	player_state = int_buffer[0];
-	
+	int player_state_netw = htonl(-1);
+	size = read(socket, &player_state_netw, sizeof(player_state_netw));
+	if(size != sizeof(player_state_netw));
+	//player_state = int_buffer[0];
+	int player_state = ntohl(player_state_netw);
 	if(player_state==0){/* On ne fait rien*/}
 	else if(player_state==-1){
 		std::cout<< "communication with server seemed to fail in communicate_check_player_state" << std::endl;
