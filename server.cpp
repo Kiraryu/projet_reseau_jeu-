@@ -184,15 +184,12 @@ void * hconnect (void * thread_param_ptr)
 {	
 	Param thread_param = *((Param*) thread_param_ptr);
 	// NO DO NOT create a copy : Communication global_com(*(thread_param.m_global_com_ptr));//doneTODO : créer constructeur de recopie
-        // INSTEAD : 
+        // INSTEAD use the pointer : 
         Communication *global_com_ptr = thread_param.m_global_com_ptr; // Get pointer to global_com
 	
 	
 	int f = *(thread_param.m_socket_ptr);// get socket number
 	
-	// Checking the address of global_com is the same between threads (OK!) 
-	// std::cout << "Address of global_com: " << thread_param.m_global_com_ptr << "in thread " << f << std::endl;
-
 	// regsiter the new player in the communication instance
 	// get the name of the player :
 	ssize_t size;
@@ -225,6 +222,7 @@ void * hconnect (void * thread_param_ptr)
 	int counter = 0;
 	while(1) {//s'exécute tant que je suis le seul joueur dispo sur le serveur
 		int break_or_not = 0;
+		// Critical section: Access global_com 
 		sem_wait(&global_com_sem);
 		player_list = global_com_ptr->get_player_list();
 		sem_post(&global_com_sem);

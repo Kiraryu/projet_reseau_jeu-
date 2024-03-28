@@ -250,7 +250,7 @@ int main (int argc, char * argv[])
 		if(size != sizeof(buffer4));
 		std::string available_players_name(buffer4);
 		std::cout << "The following players are available on the server : " << std::endl;
-		std::cout << available_players_name;
+		std::cout << available_players_name << std::endl;
 		std::cout << "To send an invitation enter the number, to wait 5 sec enter 'w'."<< std::endl;
 		
 		std::string player_choice = " ";
@@ -310,6 +310,7 @@ int main (int argc, char * argv[])
 		starting_game = communicate_check_player_state(s);
 		if(starting_game==2){
 			//We entered the game
+			std::cout << "Starting Game !" << std::endl;
 			break;
 		}
 		
