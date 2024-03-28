@@ -18,3 +18,16 @@ The client (Player 2) should type in -
 client.out is the compiled output file for connecting to the server and 192.0.2.80 is the IP address of the server(say). Given a server has already been set up, the client should be able to connect comfortably to the server.
 
 Feel free to report any bugs. Suggestions are welcome.
+
+Step 1 : 
+g++ server.cpp -o server.out
+g++ client.cpp -o client.out
+
+Step 2 : 
+./server.out
+
+Step 3 : 
+open a new terminal and go the right directory and execute the following
+./client.out IP adresss
+
+Play ! 
