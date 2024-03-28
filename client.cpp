@@ -98,7 +98,25 @@ std::cout << "connected to server"<< std::endl;
 
         // Display the board to the player
         displayBoard(board);
-
+	//receive message from the client
+	
+	char message[100];
+	memset(message, 0, 100);//clearing the message buffer
+	
+	int bytesReceived = recv(clientSocket, message, 100, 0);
+	if (bytesReceived < 0) {
+        std::cerr << "Error in receiving message" << std::endl;
+        // Handle error
+    	} 
+    	else if (bytesReceived == 0) {
+        std::cerr << "Connection closed by peer" << std::endl;
+        // Handle connection closure
+    	} 
+    	else {
+        // Message received successfully
+        std::cout << message << std::endl;
+   	}
+	
         // Get player's choice only if it's their turn
         if (currentPlayer == 0) {
             std::cout << "Player 1's turn. Enter your move (1-9): ";
