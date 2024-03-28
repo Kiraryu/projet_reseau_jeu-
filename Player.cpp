@@ -9,10 +9,41 @@ Player::Player(int socket, std::string name)
 	m_state = 0; 	// 0 waiting
 }
 
-Player::~Player()
-{
 
-} 	
+// Copy constructor
+Player::Player(const Player& other) {
+    // Copy socket, name, and state
+    m_socket = other.m_socket;
+    m_name = other.m_name;
+    m_state = other.m_state;
+    // Copy invited players
+    for (Player* invited_player : other.m_invited_players) {
+        // Create new Player objects and copy their data
+        Player* new_invited_player = new Player(*invited_player);
+        // Add the copied Player to the m_invited_players list
+        m_invited_players.push_back(new_invited_player);
+    }
+    // Copy inviting players
+    for (Player* inviting_player : other.m_inviting_players) {
+        // Create new Player objects and copy their data
+        Player* new_inviting_player = new Player(*inviting_player);
+        // Add the copied Player to the m_inviting_players list
+        m_inviting_players.push_back(new_inviting_player);
+    }
+}
+
+// Destructor
+Player::~Player() {
+    // Free memory allocated for invited players
+    for (Player* invited_player : m_invited_players) {
+        delete invited_player;
+    }
+    // Free memory allocated for inviting players
+    for (Player* inviting_player : m_inviting_players) {
+        delete inviting_player;
+    }
+}
+
 
 
 void Player::reject_invitation(Player* rejected_player_id){ // reject the invitation you have recieved. Delete rejected_player_id of m_inviting_players de this and call delete_invitation de rejected_player_id (lorsque le client à lu les invitations, s'il en refuse il faut les retirer de notre liste des joueurs invitant, et informer ces joueurs qu'on les a retiré de notre liste pour qu'ils nous retire de leur liste des joueurs invités.)

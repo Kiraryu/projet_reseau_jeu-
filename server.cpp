@@ -8,6 +8,10 @@
 #include <time.h>
 #include <vector>
 #include "param.h" //the class to communicate needed parameters to threads
+#include <semaphore.h>
+
+// Define a semaphore for synchronization
+sem_t global_com_sem;
 
 int check_player_state(Player* player_ptr, int socket){
 	Player* partner_player_ptr = nullptr;//to be shure it is intialized
@@ -179,37 +183,54 @@ void * hconnect (void * thread_param_ptr)
 
 {	
 	Param thread_param = *((Param*) thread_param_ptr);
-	Communication global_com(*(thread_param.m_global_com_ptr));//TODO : créer constructeur de recopie
+	// NO DO NOT create a copy : Communication global_com(*(thread_param.m_global_com_ptr));//doneTODO : créer constructeur de recopie
+        // INSTEAD : 
+        Communication *global_com_ptr = thread_param.m_global_com_ptr; // Get pointer to global_com
+	
+	
 	int f = *(thread_param.m_socket_ptr);// get socket number
+	
+	// Checking the address of global_com is the same between threads (OK!) 
+	// std::cout << "Address of global_com: " << thread_param.m_global_com_ptr << "in thread " << f << std::endl;
 
 	// regsiter the new player in the communication instance
 	// get the name of the player :
-		// read the name size
-	//size_t len_name;
 	ssize_t size;
 	//size = read(s, &len_name, sizeof(len_name));// get the name len to define size of buffer
 	char buffer4[50] = {0};
 	size = read(f, buffer4, sizeof(buffer4));
 	if(size != sizeof(buffer4));
 	std::string player_name(buffer4);
-	std::cout << "player_name : " << player_name << "on socket : " << f << std::endl;
+	std::cout << "player_name : " << player_name << " on socket : " << f << std::endl;
 	
-	Player* player_ptr = global_com.create_player(f, player_name); //state of player == 0
-	// TO CHECK TODO : send to client waiting for another player
+	// Critical section: Access and modify global_com 
+	sem_wait(&global_com_sem); // Acquire semaphore lock
+
+    	// Create player within the critical section
+    	Player *player_ptr = global_com_ptr->create_player(f, player_name); //state of player == 0
+
+    	sem_post(&global_com_sem); // Release semaphore lock
+    	
+    	// TO CHECK TODO : send to client waiting for another player
+	
 	std::string message = "Waiting for another player to connect to the server";
 	const char* buffer5 = message.c_str();
 	size_t buffer_size5 = message.size(); // should be max 50
 	//ssize_t size;
 	size = write(f, buffer5, buffer_size5);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(buffer5));
-	std::vector<Player*> player_list = global_com.get_player_list();
+	sem_wait(&global_com_sem);
+	std::vector<Player*> player_list = global_com_ptr->get_player_list();
+	sem_post(&global_com_sem);
 	int counter = 0;
 	while(1) {//s'exécute tant que je suis le seul joueur dispo sur le serveur
 		int break_or_not = 0;
-		player_list = global_com.get_player_list();
+		sem_wait(&global_com_sem);
+		player_list = global_com_ptr->get_player_list();
+		sem_post(&global_com_sem);
 		if(player_list.size() <=1){
 			/*just do nothing, wait*/
-			if(counter==1000){
+			if(counter==10000){
 				counter=0;
 			}
 			if(counter==0){
@@ -219,7 +240,7 @@ void * hconnect (void * thread_param_ptr)
 					player_names+= player_list[i]->get_name();
 					player_names += " ; ";
 				}
-				std::cout << "Player names : " <<std::endl;
+				std::cout << "Player names on socket " << f <<std::endl;
 				std::cout << player_names << std::endl;
 			}
 			counter+=1;
@@ -279,8 +300,10 @@ void * hconnect (void * thread_param_ptr)
 			break;
 		}
 		// demander si envoyer invitation(voir liste joueur) ou juste attendre
-		//get global player list
-		std::vector<Player*> global_player_list = global_com.get_player_list();
+		//get global player list 
+		sem_wait(&global_com_sem);
+		std::vector<Player*> global_player_list = global_com_ptr->get_player_list();
+		sem_post(&global_com_sem);
 		//get available players :
 		std::vector<Player*> available_player_list;
 		for(int i=0; i<(int)global_player_list.size();i++){
@@ -426,6 +449,13 @@ int main (int argc, char ** argv)
         int s, f, ret;
 	pthread_t tid;
 	int optval = 1;
+	
+	// Initialize the semaphore with a value of 1
+    	ret = sem_init(&global_com_sem, 0, 1);
+	if (ret != 0) {
+		fprintf(stderr, "sem_init() failed\n");
+		return 0;
+	}
 
         sin.sin_family = AF_INET; //permet de dire qu'on est en IPv4
         sin.sin_port = htons(DEFAULT_PORT); // encodage du port, htons : host to network short
@@ -477,7 +507,14 @@ int main (int argc, char ** argv)
 		int * fd = new int;
 		*fd = f;
 		Param* thread_param = new Param(&global_com, fd);
-		pthread_create(&tid, NULL, hconnect, (void *)thread_param);
+		
+	        // Acquire the semaphore lock before creating the thread
+        	sem_wait(&global_com_sem);
+        	
+        	pthread_create(&tid, NULL, hconnect, (void *)thread_param);
+
+        	// Release the semaphore lock after creating the thread
+        	sem_post(&global_com_sem);
         }
 
         return 0;
@@ -567,7 +604,7 @@ void playGame(int clientSocket) {
 
             currentPlayer = 1 - currentPlayer; // Switch player
         }
-    } while (/* condition for game continuation */);
+    } while (0/* condition for game continuation */);
 
     // Send the final state of the board to clients
     send(clientSocket, board, sizeof(board), 0);

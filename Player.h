@@ -18,6 +18,7 @@ private:
 	
 public:
 	Player(int socket, std::string name);
+	Player(const Player& other);
 	~Player();
 	
 
