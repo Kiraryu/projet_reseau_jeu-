@@ -1,10 +1,11 @@
 #include <string.h>
 #include <string>
+#include <cstring>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
 #include "base.h"
-
+#include <cerrno>   // Include errno.h for errno
 #include <time.h>
 #include <vector>
 #include "param.h" //the class to communicate needed parameters to threads
@@ -14,8 +15,10 @@
 sem_t global_com_sem;
 
 int check_player_state(Player* player_ptr, int socket){
+	
 	Player* partner_player_ptr = nullptr;//to be shure it is intialized
 	socket = player_ptr->get_socket();
+	std::cout << "entered check_player_state on socket : " << socket << std::endl;
 	//TODO : do it only in the case player state==1
 	//send the client the list of player name it invited
 	std::vector<Player*> invited_list = player_ptr->get_invited_players();
@@ -30,14 +33,20 @@ int check_player_state(Player* player_ptr, int socket){
 	int_buffer[0] = name_list_size;//fonctionne tant que inférieur à 122
 	ssize_t size;
 	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(int_buffer));
-	
+	if(size != sizeof(int_buffer)){
+		std::cout << "something failed here, bizarre..." << std::endl;
+	}
 	//send the list of invited players names
 	const char* buffer = invited_players_name.c_str();
 	size_t buffer_size = invited_players_name.size();
 	
 	size = write(socket, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(buffer));
+	if(size != sizeof(buffer)){
+		std::cout << "something went wrong here, bizarre..." << std::endl;
+		std::cout << " sizeof(buffer) :  " << sizeof(buffer) << std::endl;
+		std::cout << " size :  " << size << std::endl;
+		std::cout << "error : "<< strerror(errno) << std::endl;
+	}
 	
 	
 	
@@ -290,7 +299,7 @@ void * hconnect (void * thread_param_ptr)
 	
 	int starting_game = 0;
 	while(1){//dans cette boucle tant que on n'est pas dans un jeu
-		
+		std::cout << "entered connexion loop on thread linked to socket : " << f << std::endl;
 		// call check_player_state(player_ptr,socket)
 		starting_game = check_player_state(player_ptr,f);
 		if(starting_game==2){
