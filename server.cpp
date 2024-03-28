@@ -162,6 +162,7 @@ int main() {
     return 0;
 }
 
+//NB main fonctionne
 
 
 

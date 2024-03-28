@@ -27,7 +27,7 @@ void receiveMessages(int clientSocket) {
             break;
         }
         
-        // Check if the message contains player information
+        // Check if the message contains player information //TODO changer ca pcq ca le met n'importe ou
         if (strncmp(message, "You are", 7) == 0) {
             std::cout << message;
         } else {
@@ -65,7 +65,7 @@ int main() {
     struct sockaddr_in serverAddr;
     char board[3][3];
     int choice;
-    int currentPlayer = 0; // Variable pour suivre le joueur actuel
+    int currentPlayer = 0; // Variable pour suivre le joueur actuel  //??
 
     // Create socket
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -112,7 +112,7 @@ std::cout << "connected to server"<< std::endl;
             send(clientSocket, &choice, sizeof(choice), 0);
             currentPlayer = 1 - currentPlayer; // Switch player after valid move
         } else {
-            std::cout << "Invalid move! Try again." << std::endl;
+            std::cout << "Invalid move! Try again." << std::endl;  //TODO ici ca ne boucle pas et jsp pq
         }
     }
 
