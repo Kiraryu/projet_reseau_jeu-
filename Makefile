@@ -1,20 +1,23 @@
 CC = g++
-CFLAGS = -Wall -Wshadow -Werror -O
+CFLAGS = -Wall -Wextra -std=c++11
 
-all: client server
+SERVER_SRC = server.cpp
+CLIENT_SRC = client.cpp
 
-client: client.o
-	$(CC) $(CFLAGS) -o client client.o
+SERVER_OBJ = $(SERVER_SRC:.cpp=.o)
+CLIENT_OBJ = $(CLIENT_SRC:.cpp=.o)
 
-server: server.o
-	$(CC) $(CFLAGS) -o server server.o
+all: server client
 
-client.o: client.cpp
-	$(CC) $(CFLAGS) -c client.cpp -o client.o
+server: $(SERVER_OBJ)
+	$(CC) $(CFLAGS) -o server $(SERVER_OBJ)
 
-server.o: server.cpp
-	$(CC) $(CFLAGS) -c server.cpp -o server.o
+client: $(CLIENT_OBJ)
+	$(CC) $(CFLAGS) -o client $(CLIENT_OBJ)
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f client server *.o
+	rm -f server client *.o
 
