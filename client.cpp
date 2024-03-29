@@ -13,18 +13,18 @@ int communicate_check_player_state(int socket){
 	char* int_buffer = new char[10];// a size of 1 should be enough, but in case, 10, trying to avoid errors
 	size = read(socket, int_buffer, sizeof(int_buffer));
 	if(size != sizeof(int_buffer)){
-		std::cout << "something wrong here, strange..." << std::endl;
+		std::cout << "something wrong here : code Client16" << std::endl;
 	}
 	buffer_size = int_buffer[0];
 	
 	char* buffer = new char[buffer_size];
 	size = read(socket, buffer, sizeof(buffer));
 	if(size != sizeof(buffer)){
-		std::cout << "something wrong here, bizarre..." << std::endl;
+		std::cout << "something wrong here : code Client23" << std::endl;
 	}
 	std::string invited_player_name(buffer);
 	
-	std::cout<< "The list of players you has invited, that have not already rejected your invitation : " << std::endl;
+	std::cout<< "The list of players you have invited, that have not rejected your invitation : " << std::endl;
 	std::cout << invited_player_name << std::endl;
 	
 

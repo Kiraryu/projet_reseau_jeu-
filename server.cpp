@@ -34,7 +34,7 @@ int check_player_state(Player* player_ptr, int socket){
 	ssize_t size;
 	size = write(socket, int_buffer, sizeof(int_buffer));// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(int_buffer)){
-		std::cout << "something failed here, bizarre..." << std::endl;
+		std::cout << "something failed here : server37" << std::endl;
 	}
 	//send the list of invited players names
 	const char* buffer = invited_players_name.c_str();
@@ -42,7 +42,7 @@ int check_player_state(Player* player_ptr, int socket){
 	
 	size = write(socket, buffer, buffer_size);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(buffer)){
-		std::cout << "something went wrong here, bizarre..." << std::endl;
+		std::cout << "something went wrong here : server45" << std::endl;
 		std::cout << " sizeof(buffer) :  " << sizeof(buffer) << std::endl;
 		std::cout << " size :  " << size << std::endl;
 		std::cout << "error : "<< strerror(errno) << std::endl;
@@ -217,7 +217,7 @@ void * hconnect (void * thread_param_ptr)
 
     	sem_post(&global_com_sem); // Release semaphore lock
     	
-    	// TO CHECK TODO : send to client waiting for another player
+    	// TO CHECK doneTODO : send to client waiting for another player
 	
 	std::string message = "Waiting for another player to connect to the server";
 	const char* buffer5 = message.c_str();
@@ -260,14 +260,22 @@ void * hconnect (void * thread_param_ptr)
 			for(int i = 0; i<(int)player_list.size();i++){
 				//check if it is not us
 				other_player_ptr = player_list[i];
-				int player_socket = other_player_ptr->get_socket();
-				if(player_socket == f){
+				int other_player_socket = other_player_ptr->get_socket();
+				if(other_player_socket == f){
 					continue; //it is us
 					}
-				int player_state = player_ptr->get_state();
+				
+				int player_state = other_player_ptr->get_state();
 				//get the state
 				//if available break the for and while loop
-				if(player_state == 0 || player_state == 1){
+				if((player_state == 0 || player_state == 1) ){
+					std::string seen_player_names;
+					for(int j=0; j<= i ;j++){
+						seen_player_names += player_list[j]->get_name();
+						seen_player_names += " ; ";
+					}
+					std::cout << "Player names on socket " << f <<std::endl;
+					std::cout << seen_player_names << std::endl;
 					break_or_not = 1;
 					}
 							
@@ -279,7 +287,7 @@ void * hconnect (void * thread_param_ptr)
 		
 		struct timespec sleeping_time;
 		sleeping_time.tv_sec = 0;
-		sleeping_time.tv_nsec = 100000;
+		sleeping_time.tv_nsec = 10000;
 		nanosleep(&sleeping_time, nullptr);
 		/*std::chrono::milliseconds timespan(100);
 		std::this_thread::sleep_for(timespan);//TO CHECK TODO :voir avec le prof si on peut bien utiliser ça. */
@@ -290,7 +298,7 @@ void * hconnect (void * thread_param_ptr)
 	//check si ce joueur est invité:
 	// dire au client message d'autres joueurs connectés (on entre dans les boucles de connexions)
 	
-	std::string message6 = "Other players have joined or are available again !";
+	std::string message6 = "Other players have joined or are available !";
 	const char* buffer6 = message6.c_str();
 	size_t buffer_size6 = message6.size(); // should be max 100
 	//ssize_t size;
@@ -300,8 +308,11 @@ void * hconnect (void * thread_param_ptr)
 	int starting_game = 0;
 	while(1){//dans cette boucle tant que on n'est pas dans un jeu
 		std::cout << "entered connexion loop on thread linked to socket : " << f << std::endl;
+		// TODO PROBLEM : ce code s'éxecute simultanément sur deux threads du server
+		// TODO put a condition on the player who has the lowest socket number
 		// call check_player_state(player_ptr,socket)
 		starting_game = check_player_state(player_ptr,f);
+		std::cout << starting_game << std::endl;
 		if(starting_game==2){
 			//We entered the game
 			break;
