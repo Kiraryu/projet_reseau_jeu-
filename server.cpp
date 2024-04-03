@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <time.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
@@ -156,31 +157,72 @@ int main() {
     int client_socket = 0;
     bool gameOver = false;
     while (!gameOver) {
+    	
+    
     	if(currentPlayer == 'X'){
     		client_socket = clientSocket1;
     		}
     	else if(currentPlayer == 'O'){
     		client_socket = clientSocket2;
     		}
+    	//send a message : It is you turn
+    	//std::string message ="It is your turn.";
+        send(client_socket, &gameOver, sizeof(gameOver),0);
+    	
     	//send board to current player
     	send(client_socket, (char *)board, sizeof(board), 0);
 
         // Handle first client's move
         handleClientMove(client_socket, currentPlayer);
         
-    	//send the updated board to current player
-    	send(client_socket, (char *)board, sizeof(board), 0);
-    	
     	//check if the game is Over
     	if (checkWin(currentPlayer) || checkDraw()) {
             gameOver = true;
+            
+            //send a message : You win or tie
+            if(checkWin(currentPlayer)){
+            	//send "You win the game !!"
+            	std::string message ="You win the game !!";
+            	send(client_socket, message.c_str(), message.length(),0);
+            	std::cout << currentPlayer << " wins the game" << std::endl;
+            }
+            else if(checkDraw()){
+            	//send "It is a tie.";
+            	std::string message ="It is a tie.";
+            	send(client_socket, message.c_str(), message.length(),0);
+            	std::cout << "It is a tie." << std::endl;
+            }
             break;
+        }
+        else{
+        	//send a message : the other player is playing
+        	std::string message ="The other player is playing.";
+            	send(client_socket, message.c_str(), message.length(),0);
+            	std::cout << "The other player is playing." << std::endl;
         }
     	currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
     
     }
+    //currentPlayer is the winner, we want to send a message to looser
+    int looser_socket = 0;
+    int winner_socket = 0;
+    if(currentPlayer == 'X'){
+    		looser_socket = clientSocket2;
+    		winner_socket = clientSocket1;
+    		}
+    else if(currentPlayer == 'O'){
+    		looser_socket = clientSocket1;
+    		winner_socket = clientSocket2;
+    		}
+    //send a message to the player who lost to break it loop
+    //std::string message ="You lost the game";
+    //send(looser_socket, message.c_str(), message.length(),0);
+    send(looser_socket, &gameOver, sizeof(gameOver),0);
     
-    
+    //send to the players the board at the end of the game.
+    sleep(1);
+    send(looser_socket, (char *)board, sizeof(board), 0);
+    send(winner_socket, (char *)board, sizeof(board), 0);
 
     close(serverSocket);
     close(clientSocket1);

@@ -19,6 +19,16 @@ void displayBoard(char board[3][3]) {
     }
 }
 
+void get_send_move(clientSocket){
+    int row, col;
+    std::cout << "Enter row and column (0-2): ";
+    std::cin >> row >> col;
+    sprintf(buffer, "%d %d", row, col);
+
+    // Send move to server
+    send(clientSocket, buffer, strlen(buffer), 0);
+}
+
 int main() {
     int clientSocket;
     struct sockaddr_in serverAddr;
@@ -47,8 +57,23 @@ int main() {
     }
 
     std::cout << "Connected to server" << std::endl;
+    /*int buffer_size = 200;
+    char buffer[buffer_size];*/
+    std::string received_message;
+    int valread;
+    bool gameOver = 0;
 
     while (true) {
+    	//receive a message :
+    	valread = read(clientSocket, &gameOver,sizeof(gameOver));
+    	if(!gameOver){
+        	std::cout << "It is your turn." << std::endl;
+        }
+        else if(gameOver){
+        	std::cout << "You lost the game"<< std::endl;
+        	break;
+        }
+    	
         // Receive current board from server
         recv(clientSocket, buffer, BUFFER_SIZE, 0);
         memcpy(board, buffer, sizeof(board));
@@ -56,19 +81,29 @@ int main() {
         // Display board
         displayBoard(board);
 
-        // Get player's move
-        int row, col;
-        std::cout << "Enter row and column (0-2): ";
-        std::cin >> row >> col;
-        sprintf(buffer, "%d %d", row, col);
-
-        // Send move to server
-        send(clientSocket, buffer, strlen(buffer), 0);
-
-        // Receive updated board from server
-        recv(clientSocket, buffer, BUFFER_SIZE, 0);
-        memcpy(board, buffer, sizeof(board));
+        // Get player's move and send it
+        get_send_move(clientSocket);
+        
+        //receive the message from the server
+        valread = read(clientSocket, buffer,BUFFER_SIZE);
+        received_message = std::string(buffer,valread);
+        if(received_message=="You win the game !!" || received_message=="It is a tie."){
+        	std::cout <<received_message << std::endl;
+        	break;
+        }
+        else if(received_message=="The other player is playing."){
+        	continue;
+        }
+        else{
+        	std::cout << "error in the game loop : "<< received_message << std::endl;
+        }
     }
+    //receive the board at the end of the game.
+    recv(clientSocket, buffer, BUFFER_SIZE, 0);
+    memcpy(board, buffer, sizeof(board));
+
+    // Display board
+    displayBoard(board);	
 
     close(clientSocket);
     return 0;
