@@ -39,7 +39,7 @@ bool checkWin(char player) {
     return false;
 }
 
-bool checkDraw() {
+bool checkDraw() { //check if all the board is filled (tie)
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             if (board[i][j] == '-') return false;
@@ -116,6 +116,7 @@ int main() {
     std::cout << "Second player connected" << std::endl;
 
     initializeBoard();
+    /*
     char currentPlayer = 'X';
     bool gameOver = false;
 
@@ -147,7 +148,39 @@ int main() {
         }
 
         currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    }*/
+    
+    //define current player
+    char currentPlayer = 'X';
+    // x : player 1, O : player 2
+    int client_socket = 0;
+    bool gameOver = false;
+    while (!gameOver) {
+    	if(currentPlayer == 'X'){
+    		client_socket = clientSocket1;
+    		}
+    	else if(currentPlayer == 'O'){
+    		client_socket = clientSocket2;
+    		}
+    	//send board to current player
+    	send(client_socket, (char *)board, sizeof(board), 0);
+
+        // Handle first client's move
+        handleClientMove(client_socket, currentPlayer);
+        
+    	//send the updated board to current player
+    	send(client_socket, (char *)board, sizeof(board), 0);
+    	
+    	//check if the game is Over
+    	if (checkWin(currentPlayer) || checkDraw()) {
+            gameOver = true;
+            break;
+        }
+    	currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    
     }
+    
+    
 
     close(serverSocket);
     close(clientSocket1);
