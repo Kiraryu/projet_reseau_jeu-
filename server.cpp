@@ -19,7 +19,7 @@ int check_player_state(Player* player_ptr, int socket){
 	
 	Player* partner_player_ptr = nullptr;//to be shure it is intialized
 	socket = player_ptr->get_socket();
-	std::cout << "entered check_player_state on socket : " << socket << std::endl;
+	std::cout << socket << "entered check_player_state on socket : " << socket << std::endl;
 	//TODO : do it only in the case player state==1
 	//send the client the list of player name it invited
 	std::vector<Player*> invited_list = player_ptr->get_invited_players();
@@ -29,19 +29,20 @@ int check_player_state(Player* player_ptr, int socket){
 		invited_players_name += invited_list[i]->get_name();
 		invited_players_name += " ; ";//the delimiter between names
 	}
-	int name_list_size = invited_players_name.size();
+	
+	
+	
 	//send the name_list_size for the buffer to know the length
-	//char* int_buffer = new char[10];// a size of 1 should be enough, but in case, 10, trying to avoid errors
-	//int_buffer[0] = name_list_size;//fonctionne tant que inférieur à 122
 	ssize_t size;
-	size = send(socket, &name_list_size, sizeof(name_list_size),0);// send the size of the string so the client can adapt buffer size
-	if(size != sizeof(name_list_size)){
-		std::cout << "something failed here, bizarre..." << std::endl;
+	size_t buffer_size = invited_players_name.size();
+	size = send(socket, &buffer_size, sizeof(buffer_size),0);// send the size of the string so the client can adapt buffer size
+	if(size != sizeof(buffer_size)){
+		std::cout<< socket << "something failed here, bizarre..." << std::endl;
 	}
 	//send the list of invited players names
 	const char* buffer = invited_players_name.c_str();
-	size_t buffer_size = invited_players_name.size();
-	std::cout<<"debug : invited_players_name : " << invited_players_name << std::endl;
+	
+	std::cout << socket<< "debug : invited_players_name : " << invited_players_name << std::endl;
 	size = send(socket, buffer, buffer_size,0);// send the size of the string so the client can adapt buffer size
 	if(size != (long int)buffer_size){
 		std::cout << "something went wrong here, bizarre..." << std::endl;
@@ -56,10 +57,10 @@ int check_player_state(Player* player_ptr, int socket){
 	}
 	else{
 		if (flags & O_NONBLOCK){
-			std::cout << "Socket is in non blocking mode." << std::endl;
+			std::cout<< socket << "Socket is in non blocking mode." << std::endl;
 		}
 		else{
-			std::cout << "Socket is in blocking mode." << std::endl;
+			std::cout<< socket << "Socket is in blocking mode." << std::endl;
 		}
 	}
 	
@@ -69,7 +70,7 @@ int check_player_state(Player* player_ptr, int socket){
 	int player_state = player_ptr->get_state();
 	//sent client the state to tell it what to do next
 	//int_buffer[0] = player_state;
-	std::cout << "player_state : " << player_state << std::endl;
+	std::cout<< socket << "player_state : " << player_state << std::endl;
 	int player_state_ntw = htonl(player_state);
 	size = write(socket, &player_state_ntw, sizeof(player_state_ntw));// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(player_state_ntw)){
@@ -79,7 +80,7 @@ int check_player_state(Player* player_ptr, int socket){
 		std::cout << "error : "<< strerror(errno) << std::endl;
 	}
 	else{
-		std::cout << "player_state correctly sent !" << std::endl;
+		std::cout<< socket << "player_state correctly sent !" << std::endl;
 	}
 	
 	flags = fcntl(socket, F_GETFL,0);
@@ -258,9 +259,9 @@ void * hconnect (void * thread_param_ptr)
     	
     	// TO CHECK TODO : send to client waiting for another player
 	
-	std::string message = "Waiting for another player to connect to the server";
+	std::string message = "Waiting for another player to connect to the server"; //51 char
 	const char* buffer5 = message.c_str();
-	size_t buffer_size5 = message.size(); // should be max 50
+	size_t buffer_size5 = message.size(); // should be max 100
 	//ssize_t size;
 	size = write(f, buffer5, buffer_size5);// send the size of the string so the client can adapt buffer size
 	if(size != sizeof(buffer5));
@@ -268,6 +269,8 @@ void * hconnect (void * thread_param_ptr)
 	std::vector<Player*> player_list = global_com_ptr->get_player_list();
 	sem_post(&global_com_sem);
 	int counter = 0;
+	// VERIF : jusque là tout à l'air de bien se passer.
+	
 	while(1) {//s'exécute tant que je suis le seul joueur dispo sur le serveur
 		int break_or_not = 0;
 		// Critical section: Access global_com 
@@ -328,6 +331,8 @@ void * hconnect (void * thread_param_ptr)
 	//ici, il y a des joueurs connectés
 	//check si ce joueur est invité:
 	// dire au client message d'autres joueurs connectés (on entre dans les boucles de connexions)
+	// VERIF : jusque là tout à l'air de bien se passer.
+	
 	
 	std::string message6 = "Other players have joined or are available again !";
 	const char* buffer6 = message6.c_str();

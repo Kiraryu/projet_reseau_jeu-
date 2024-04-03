@@ -9,19 +9,24 @@
 int communicate_check_player_state(int socket){
 	std::cout << "entering communicate_check_player_state()" << std::endl;
 	//receive the name of players in pending invitation
-	int buffer_size = 0;
+	size_t buffer_size = 0;
 	ssize_t size;
-	//char* int_buffer = new char[10];// a size of 1 should be enough, but in case, 10, trying to avoid errors
 	size = recv(socket, &buffer_size, sizeof(buffer_size),0);
 	if(size != sizeof(buffer_size)){
 		std::cout << "something wrong here, strange..." << std::endl;
 	}
+	else{
+		std::cout<< "buffer_size received : " <<buffer_size << std::endl;
+	}
+	
 	//buffer_size = int_buffer[0];
 	
 	char* buffer = new char[buffer_size +1];// Allocate one extra byte for null terminator
 	size = recv(socket, buffer, buffer_size,0);
-	if(size != buffer_size){
+	if(size != (long int)buffer_size){
 		std::cout << "something wrong here, bizarre..." << std::endl;
+		std::cout << " size : " << size << std::endl;
+		std::cout << " buffer_size : " << buffer_size << std::endl;
 	}
 	buffer[buffer_size] = '\0'; // Add null terminator to make it a valid C-string
 	std::string invited_player_name(buffer);
@@ -222,9 +227,13 @@ int main (int argc, char * argv[])
 	for(int i=0;i<100;i++){buffer_message[i]=32;}// 32 : space in ASCII table
 	size = read(s, buffer_message, sizeof(buffer_message));
 	if(size != sizeof(buffer_message));
+
 	std::string message(buffer_message);
 	std::cout << message << std::endl;
-	for(int i=0;i<100;i++){buffer_message[i]=32;}
+	for(int i=0;i<100;i++){
+		buffer_message[i]=32;
+		}
+	std::cout << std::endl;
 	
 	//receive the message that someone has joined server
 	size = read(s, buffer_message, sizeof(buffer_message));
@@ -233,6 +242,7 @@ int main (int argc, char * argv[])
 	std::cout << message << std::endl;
 	for(int i=0;i<100;i++){buffer_message[i]=32;}
 	//enter the connexion loop
+	std::cout << std::endl;
 	
 	int starting_game = 0;
 	
@@ -249,7 +259,7 @@ int main (int argc, char * argv[])
 		int number_available_players;
 		size = read(s, &number_available_players, sizeof(number_available_players));
 		if(size != sizeof(number_available_players));
-		
+		//std::cout << "number_available_players : " << number_available_players;
 		int buffer_size4 = 0;
 		size = read(s, &buffer_size4, sizeof(buffer_size4));
 		if(size != sizeof(buffer_size4));
