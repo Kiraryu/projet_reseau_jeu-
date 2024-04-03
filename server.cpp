@@ -155,7 +155,7 @@ int main() {
     char currentPlayer = 'X';
     // x : player 1, O : player 2
     int client_socket = 0;
-    bool gameOver = false;
+    int gameOver = 0;
     while (!gameOver) {
     	
     
@@ -177,7 +177,7 @@ int main() {
         
     	//check if the game is Over
     	if (checkWin(currentPlayer) || checkDraw()) {
-            gameOver = true;
+            
             
             //send a message : You win or tie
             if(checkWin(currentPlayer)){
@@ -185,12 +185,14 @@ int main() {
             	std::string message ="You win the game !!";
             	send(client_socket, message.c_str(), message.length(),0);
             	std::cout << currentPlayer << " wins the game" << std::endl;
+            	gameOver = 1;
             }
             else if(checkDraw()){
             	//send "It is a tie.";
             	std::string message ="It is a tie.";
             	send(client_socket, message.c_str(), message.length(),0);
             	std::cout << "It is a tie." << std::endl;
+            	gameOver = 2;
             }
             break;
         }

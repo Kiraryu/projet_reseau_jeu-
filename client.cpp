@@ -18,11 +18,32 @@ void displayBoard(char board[3][3]) {
         std::cout << std::endl;
     }
 }
-
-void get_send_move(clientSocket){
+/*
+void get_send_move(int clientSocket,char* buffer, char (*)[3]’ board){
     int row, col;
     std::cout << "Enter row and column (0-2): ";
     std::cin >> row >> col;
+    sprintf(buffer, "%d %d", row, col);
+
+    // Send move to server
+    send(clientSocket, buffer, strlen(buffer), 0);
+}*/
+
+void get_send_move(int clientSocket, char* buffer, char board[3][3]){
+    int row, col;
+    bool unvalid_move = true;
+    while(unvalid_move){
+    	std::cout << "Enter row and column (0-2): ";
+        std::cin >> row >> col;
+    	if(board[row][col] != 45){//45 : "-" in ASCII table
+    		unvalid_move = true;
+    		std::cout << "This spot is taken. Please choose a valid spot." << std::endl;
+    	}
+    	else{
+    		unvalid_move = false;
+    	}
+    }
+    
     sprintf(buffer, "%d %d", row, col);
 
     // Send move to server
@@ -61,7 +82,7 @@ int main() {
     char buffer[buffer_size];*/
     std::string received_message;
     int valread;
-    bool gameOver = 0;
+    int gameOver = 0;
 
     while (true) {
     	//receive a message :
@@ -69,8 +90,12 @@ int main() {
     	if(!gameOver){
         	std::cout << "It is your turn." << std::endl;
         }
-        else if(gameOver){
+        else if(gameOver==1){
         	std::cout << "You lost the game"<< std::endl;
+        	break;
+        }
+        else if(gameOver==2){
+        	std::cout << "It is a tie."<< std::endl;
         	break;
         }
     	
@@ -82,7 +107,7 @@ int main() {
         displayBoard(board);
 
         // Get player's move and send it
-        get_send_move(clientSocket);
+        get_send_move(clientSocket, buffer, board);
         
         //receive the message from the server
         valread = read(clientSocket, buffer,BUFFER_SIZE);
