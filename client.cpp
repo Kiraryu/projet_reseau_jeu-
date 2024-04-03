@@ -7,152 +7,7 @@
 #include "base.h"
 
 int communicate_check_player_state(int socket){
-	std::cout << "entering communicate_check_player_state()" << std::endl;
-	//receive the name of players in pending invitation
-	size_t buffer_size = 0;
-	ssize_t size;
-	size = recv(socket, &buffer_size, sizeof(buffer_size),0);
-	if(size != sizeof(buffer_size)){
-		std::cout << "something wrong here, strange..." << std::endl;
-	}
-	else{
-		std::cout<< "buffer_size received : " <<buffer_size << std::endl;
-	}
 	
-	//buffer_size = int_buffer[0];
-	
-	char* buffer = new char[buffer_size +1];// Allocate one extra byte for null terminator
-	size = recv(socket, buffer, buffer_size,0);
-	if(size != (long int)buffer_size){
-		std::cout << "something wrong here, bizarre..." << std::endl;
-		std::cout << " size : " << size << std::endl;
-		std::cout << " buffer_size : " << buffer_size << std::endl;
-	}
-	buffer[buffer_size] = '\0'; // Add null terminator to make it a valid C-string
-	std::string invited_player_name(buffer);
-	delete[] buffer;
-	
-	std::cout<< "The list of players you has invited, that have not already rejected your invitation : " << std::endl;
-	std::cout << invited_player_name << std::endl;
-	
-
-	//receive an int that give the state and will influence the next actions
-	int player_state_netw = htonl(-1);
-	size = read(socket, &player_state_netw, sizeof(player_state_netw));
-	if(size != sizeof(player_state_netw));
-	//player_state = int_buffer[0];
-	int player_state = ntohl(player_state_netw);
-	if(player_state==0){/* On ne fait rien*/}
-	else if(player_state==-1){
-		std::cout<< "communication with server seemed to fail in communicate_check_player_state" << std::endl;
-	}
-	else if(player_state==2){
-		// wait for further communication to say we enter the game
-	}
-	else{	
-		std::cout << "something failed here" << std::endl;
-		std::cout << "player_state : " << player_state << std::endl;
-		//TODO : manage problem
-	}
-	while(player_state==1){
-		//receive the number of inviting players
-		int players_number = 0;
-		size = read(socket, &players_number, sizeof(players_number));
-		if(size != sizeof(players_number));
-		//players_number = int_buffer[0];
-		
-		//receive the names of inviting players
-		int buffer_size2 = 0;
-		size = read(socket, &buffer_size2, sizeof(buffer_size2));
-		if(size != sizeof(buffer_size2));
-		//buffer_size2 = int_buffer[0];
-		
-		char* buffer2 = new char[buffer_size2];
-		size = read(socket, buffer2, sizeof(buffer2));
-		if(size != sizeof(buffer2));
-		std::string inviting_players_name(buffer2);
-		delete [] buffer2;
-		std::cout << "The following players invited you : " << std::endl;
-		std::cout << inviting_players_name;
-		std::cout << "To accept an invitation enter the number, to refuse enter 'n'."<<std::endl;
-		
-		std::string player_choice = " ";
-		int int_player_choice = 0;
-		bool invalid_player_choice = true;
-		while (!(std::cin >> player_choice) || invalid_player_choice)
-		{	
-			if(player_choice=="n"){
-				invalid_player_choice= false;
-				int_player_choice = -1;// cas de refus d'invitation
-				continue;
-			}
-			//essayer de le convertir en int, si marche pas continue
-			else{
-				
-				try {
-					int_player_choice = stoi(player_choice);
-					if(int_player_choice>=0 && int_player_choice<players_number){
-						invalid_player_choice= false;
-						//cas d'acceptation d'invitation
-					}
-					else{
-						std::cout << "Invalid choice, Please enter a correct number to accept an invitation or 'n' to refuse " << std::endl;
-					}
-				}
-				catch(...){
-					std::cout << "Invalid choice, Please enter a correct number to accept or 'n' to refuse " << std::endl;
-				}
-			}
-			std::cin.clear();
-			std::cin.ignore(1000, '\n');// TODO : gérer si la personne met plus de 1000 char dans la console
-		}
-		//send answer to server
-		//int_buffer[0] = int_player_choice;
-		size = write(socket, &int_player_choice, sizeof(int_player_choice));
-		if(size != sizeof(int_player_choice));
-		
-		if(int_player_choice==-1){// cas de refus
-			std::cout << "You chose to invite no one." << std::endl;
-			// do we do something else here ?
-		}
-		else if(int_player_choice>=0 && int_player_choice<players_number){
-			// cas d'invitation
-			int valid_invitation = 0;
-			size = read(socket, &valid_invitation, sizeof(valid_invitation));
-			if(size != sizeof(valid_invitation));
-			
-			if(valid_invitation){
-				char* buffer3 = new char[50];
-				size = read(socket, buffer3, sizeof(buffer3));
-				if(size != sizeof(buffer3));
-				std::string partner_name = buffer3;
-				std::cout << "the invitation from player " << partner_name;
-				std::cout << " is still valid." << std::endl;
-				std::cout << "If everything goes well, you will soon enter the game!" << std::endl;
-				delete [] buffer3;
-			}
-			else{//invitation is not valid
-				std::cout << "Sadly, the invitation is not valid anymore." << std::endl;
-			}
-			
-		}
-		else{
-			std::cout << "some problem here"<< std::endl;
-		}
-		
-		size = read(socket, &player_state, sizeof(player_state));
-		if(size != sizeof(player_state));
-		
-	}	
-	size = read(socket, &player_state, sizeof(player_state));
-	if(size != sizeof(player_state));
-	if(player_state==2){
-		std::cout<< "You are entering a game!" << std::endl;
-		return 2;//TODO : be shure it is compatible with server protocol
-	}	
-	else{
-		return 0;
-	}
 } 
 
 
@@ -223,26 +78,15 @@ int main (int argc, char * argv[])
 	
 	
 	//receive the waiting message from server
-	char buffer_message[100] = {0};
-	for(int i=0;i<100;i++){buffer_message[i]=32;}// 32 : space in ASCII table
-	size = read(s, buffer_message, sizeof(buffer_message));
-	if(size != sizeof(buffer_message));
+	// TODO : use a function receive and cout a message (less than 100 char)
 
-	std::string message(buffer_message);
-	std::cout << message << std::endl;
-	for(int i=0;i<100;i++){
-		buffer_message[i]=32;
-		}
-	std::cout << std::endl;
 	
 	//receive the message that someone has joined server
-	size = read(s, buffer_message, sizeof(buffer_message));
-	if(size != sizeof(buffer_message));
-	message = buffer_message;
-	std::cout << message << std::endl;
-	for(int i=0;i<100;i++){buffer_message[i]=32;}
+	
+	
+	
 	//enter the connexion loop
-	std::cout << std::endl;
+	
 	
 	int starting_game = 0;
 	
